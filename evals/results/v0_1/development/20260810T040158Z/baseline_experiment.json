@@ -1,0 +1,412 @@
+{
+  "comparison": {
+    "deterministic": {
+      "feasibility_accuracy": 0.9,
+      "hard_constraint_validity": 1.0,
+      "mean_latency_ms": 0.10950839932775125,
+      "median_latency_ms": 0.08012499893084168,
+      "scenario_count": 10,
+      "structured_output_validity": 1.0,
+      "total_input_tokens": null,
+      "total_output_tokens": null,
+      "total_tokens": null,
+      "unsupported_claim_rate": null
+    },
+    "single_pass_llm": {
+      "feasibility_accuracy": 0.0,
+      "hard_constraint_validity": 0.0,
+      "mean_latency_ms": 9322.745979201136,
+      "median_latency_ms": 10766.599604503426,
+      "scenario_count": 10,
+      "structured_output_validity": 0.0,
+      "total_input_tokens": 1355,
+      "total_output_tokens": 4278,
+      "total_tokens": 5633,
+      "unsupported_claim_rate": null
+    }
+  },
+  "dataset_split": "development",
+  "deterministic": {
+    "metrics": {
+      "feasibility_accuracy": 0.9,
+      "hard_constraint_validity": 1.0,
+      "mean_latency_ms": 0.10950839932775125,
+      "no_feasible_plan_accuracy": 1.0,
+      "scenario_count": 10
+    },
+    "scenarios": [
+      {
+        "candidate_resource_ids": [
+          [
+            "venue-brooklyn-loft",
+            "caterer-family-table",
+            "activity-craft-party"
+          ]
+        ],
+        "expected_outcome": "FEASIBLE",
+        "feasibility_correct": true,
+        "hard_constraints_valid": true,
+        "latency_ms": 0.21058400307083502,
+        "predicted_outcome": "FEASIBLE",
+        "scenario_id": "dev-simple-feasible-01"
+      },
+      {
+        "candidate_resource_ids": [
+          [
+            "venue-brooklyn-loft",
+            "caterer-family-table",
+            "activity-craft-party"
+          ]
+        ],
+        "expected_outcome": "FEASIBLE",
+        "feasibility_correct": true,
+        "hard_constraints_valid": true,
+        "latency_ms": 0.22833299590274692,
+        "predicted_outcome": "FEASIBLE",
+        "scenario_id": "dev-exact-budget-02"
+      },
+      {
+        "candidate_resource_ids": [],
+        "expected_outcome": "NO_FEASIBLE_PLAN",
+        "feasibility_correct": true,
+        "hard_constraints_valid": true,
+        "latency_ms": 0.09058399882633239,
+        "predicted_outcome": "NO_FEASIBLE_PLAN",
+        "scenario_id": "dev-budget-infeasible-03"
+      },
+      {
+        "candidate_resource_ids": [],
+        "expected_outcome": "NO_FEASIBLE_PLAN",
+        "feasibility_correct": true,
+        "hard_constraints_valid": true,
+        "latency_ms": 0.06729099550284445,
+        "predicted_outcome": "NO_FEASIBLE_PLAN",
+        "scenario_id": "dev-capacity-infeasible-04"
+      },
+      {
+        "candidate_resource_ids": [],
+        "expected_outcome": "NO_FEASIBLE_PLAN",
+        "feasibility_correct": true,
+        "hard_constraints_valid": true,
+        "latency_ms": 0.08020899986149743,
+        "predicted_outcome": "NO_FEASIBLE_PLAN",
+        "scenario_id": "dev-unavailable-05"
+      },
+      {
+        "candidate_resource_ids": [],
+        "expected_outcome": "NO_FEASIBLE_PLAN",
+        "feasibility_correct": true,
+        "hard_constraints_valid": true,
+        "latency_ms": 0.07970899605425075,
+        "predicted_outcome": "NO_FEASIBLE_PLAN",
+        "scenario_id": "dev-age-restricted-06"
+      },
+      {
+        "candidate_resource_ids": [],
+        "expected_outcome": "FEASIBLE",
+        "feasibility_correct": false,
+        "hard_constraints_valid": true,
+        "latency_ms": 0.08004099800018594,
+        "predicted_outcome": "NO_FEASIBLE_PLAN",
+        "scenario_id": "dev-accessible-07"
+      },
+      {
+        "candidate_resource_ids": [
+          [
+            "venue-small-studio",
+            "caterer-family-table",
+            "activity-craft-party"
+          ],
+          [
+            "venue-brooklyn-loft",
+            "caterer-family-table",
+            "activity-craft-party"
+          ],
+          [
+            "venue-small-studio",
+            "caterer-premium",
+            "activity-craft-party"
+          ],
+          [
+            "venue-brooklyn-loft",
+            "caterer-premium",
+            "activity-craft-party"
+          ]
+        ],
+        "expected_outcome": "FEASIBLE",
+        "feasibility_correct": true,
+        "hard_constraints_valid": true,
+        "latency_ms": 0.19512500148266554,
+        "predicted_outcome": "FEASIBLE",
+        "scenario_id": "dev-multiple-choices-08"
+      },
+      {
+        "candidate_resource_ids": [],
+        "expected_outcome": "NO_FEASIBLE_PLAN",
+        "feasibility_correct": true,
+        "hard_constraints_valid": true,
+        "latency_ms": 0.04266700125299394,
+        "predicted_outcome": "NO_FEASIBLE_PLAN",
+        "scenario_id": "dev-impossible-combination-09"
+      },
+      {
+        "candidate_resource_ids": [],
+        "expected_outcome": "HUMAN_REVIEW_REQUIRED",
+        "feasibility_correct": true,
+        "hard_constraints_valid": true,
+        "latency_ms": 0.020541003323160112,
+        "predicted_outcome": "HUMAN_REVIEW_REQUIRED",
+        "scenario_id": "dev-allergy-evidence-10"
+      }
+    ]
+  },
+  "metadata": {
+    "config": {
+      "architecture_variant": "deterministic_plus_single_pass_llm",
+      "code_commit_sha": "d39e8a94551c1008276f3080bc8f0514ad39067d",
+      "dataset_version": "v0.1",
+      "experiment_id": "baseline-v0.1-development-20260810T040158Z",
+      "git_metadata_error": null,
+      "model_name": "qwen3:4b-instruct-2507-q4_K_M",
+      "model_provider": "ollama",
+      "model_version": null,
+      "prompt_version": "single-pass-v1",
+      "random_seed": null,
+      "retrieval_configuration": null,
+      "timestamp": "2026-08-10T04:01:58.552402Z",
+      "working_tree_dirty": false
+    }
+  },
+  "single_pass_scenarios": [
+    {
+      "errors": [
+        "3 validation errors for PartyPlan\nresources\n  Field required [type=missing, input_value={'party_plan': {'event_da...se of weather issues.'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nclaimed_total_cost\n  Field required [type=missing, input_value={'party_plan': {'event_da...se of weather issues.'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nparty_plan\n  Extra inputs are not permitted [type=extra_forbidden, input_value={'event_date': '2026-09-2...ase of weather issues.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden"
+      ],
+      "expected_outcome": "FEASIBLE",
+      "failure_categories": [
+        "schema_invalid"
+      ],
+      "failure_labels": [
+        "schema_invalid",
+        "feasibility_misclassification"
+      ],
+      "feasibility_correct": false,
+      "hard_constraints_valid": false,
+      "latency_ms": 11079.961000003095,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "dev-simple-feasible-01",
+      "structured_output_valid": false,
+      "unsupported_claim": null,
+      "usage_input_tokens": 135,
+      "usage_output_tokens": 473,
+      "usage_total_tokens": 608
+    },
+    {
+      "errors": [
+        "3 validation errors for PartyPlan\nresources\n  Field required [type=missing, input_value={'party_plan': {'event_da...gs fun and inclusive.\"}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nclaimed_total_cost\n  Field required [type=missing, input_value={'party_plan': {'event_da...gs fun and inclusive.\"}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nparty_plan\n  Extra inputs are not permitted [type=extra_forbidden, input_value={'event_date': '2026-09-2...ngs fun and inclusive.\"}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden"
+      ],
+      "expected_outcome": "FEASIBLE",
+      "failure_categories": [
+        "schema_invalid"
+      ],
+      "failure_labels": [
+        "schema_invalid",
+        "feasibility_misclassification"
+      ],
+      "feasibility_correct": false,
+      "hard_constraints_valid": false,
+      "latency_ms": 11222.77787499479,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "dev-exact-budget-02",
+      "structured_output_valid": false,
+      "unsupported_claim": null,
+      "usage_input_tokens": 135,
+      "usage_output_tokens": 527,
+      "usage_total_tokens": 662
+    },
+    {
+      "errors": [
+        "3 validation errors for PartyPlan\nresources\n  Field required [type=missing, input_value={'party_plan': {'event_da...anized outdoor party.'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nclaimed_total_cost\n  Field required [type=missing, input_value={'party_plan': {'event_da...anized outdoor party.'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nparty_plan\n  Extra inputs are not permitted [type=extra_forbidden, input_value={'event_date': '2026-09-2...ganized outdoor party.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden"
+      ],
+      "expected_outcome": "NO_FEASIBLE_PLAN",
+      "failure_categories": [
+        "schema_invalid"
+      ],
+      "failure_labels": [
+        "schema_invalid",
+        "feasibility_misclassification"
+      ],
+      "feasibility_correct": false,
+      "hard_constraints_valid": false,
+      "latency_ms": 10607.323292002548,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "dev-budget-infeasible-03",
+      "structured_output_valid": false,
+      "unsupported_claim": null,
+      "usage_input_tokens": 134,
+      "usage_output_tokens": 495,
+      "usage_total_tokens": 629
+    },
+    {
+      "errors": [
+        "3 validation errors for PartyPlan\nresources\n  Field required [type=missing, input_value={'party_plan': {'event_da...or minor adjustments.'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nclaimed_total_cost\n  Field required [type=missing, input_value={'party_plan': {'event_da...or minor adjustments.'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nparty_plan\n  Extra inputs are not permitted [type=extra_forbidden, input_value={'event_date': '2026-09-2...for minor adjustments.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden"
+      ],
+      "expected_outcome": "NO_FEASIBLE_PLAN",
+      "failure_categories": [
+        "schema_invalid"
+      ],
+      "failure_labels": [
+        "schema_invalid",
+        "feasibility_misclassification"
+      ],
+      "feasibility_correct": false,
+      "hard_constraints_valid": false,
+      "latency_ms": 9534.087250001903,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "dev-capacity-infeasible-04",
+      "structured_output_valid": false,
+      "unsupported_claim": null,
+      "usage_input_tokens": 135,
+      "usage_output_tokens": 444,
+      "usage_total_tokens": 579
+    },
+    {
+      "errors": [
+        "3 validation errors for PartyPlan\nresources\n  Field required [type=missing, input_value={'party_plan': {'event_da...afety and engagement.\"}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nclaimed_total_cost\n  Field required [type=missing, input_value={'party_plan': {'event_da...afety and engagement.\"}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nparty_plan\n  Extra inputs are not permitted [type=extra_forbidden, input_value={'event_date': '2026-09-2...safety and engagement.\"}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden"
+      ],
+      "expected_outcome": "NO_FEASIBLE_PLAN",
+      "failure_categories": [
+        "schema_invalid"
+      ],
+      "failure_labels": [
+        "schema_invalid",
+        "feasibility_misclassification"
+      ],
+      "feasibility_correct": false,
+      "hard_constraints_valid": false,
+      "latency_ms": 11161.304624998593,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "dev-unavailable-05",
+      "structured_output_valid": false,
+      "unsupported_claim": null,
+      "usage_input_tokens": 135,
+      "usage_output_tokens": 520,
+      "usage_total_tokens": 655
+    },
+    {
+      "errors": [
+        "3 validation errors for PartyPlan\nresources\n  Field required [type=missing, input_value={'party_plan': {'event_da...or minor adjustments.'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nclaimed_total_cost\n  Field required [type=missing, input_value={'party_plan': {'event_da...or minor adjustments.'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nparty_plan\n  Extra inputs are not permitted [type=extra_forbidden, input_value={'event_date': '2026-09-2...for minor adjustments.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden"
+      ],
+      "expected_outcome": "NO_FEASIBLE_PLAN",
+      "failure_categories": [
+        "schema_invalid"
+      ],
+      "failure_labels": [
+        "schema_invalid",
+        "feasibility_misclassification"
+      ],
+      "feasibility_correct": false,
+      "hard_constraints_valid": false,
+      "latency_ms": 13564.787417002663,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "dev-age-restricted-06",
+      "structured_output_valid": false,
+      "unsupported_claim": null,
+      "usage_input_tokens": 135,
+      "usage_output_tokens": 632,
+      "usage_total_tokens": 767
+    },
+    {
+      "errors": [
+        "3 validation errors for PartyPlan\nresources\n  Field required [type=missing, input_value={'party_plan': {'event_da...other_constraints': []}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nclaimed_total_cost\n  Field required [type=missing, input_value={'party_plan': {'event_da...other_constraints': []}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nparty_plan\n  Extra inputs are not permitted [type=extra_forbidden, input_value={'event_date': '2026-09-2...'other_constraints': []}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden"
+      ],
+      "expected_outcome": "FEASIBLE",
+      "failure_categories": [
+        "schema_invalid"
+      ],
+      "failure_labels": [
+        "schema_invalid",
+        "feasibility_misclassification"
+      ],
+      "feasibility_correct": false,
+      "hard_constraints_valid": false,
+      "latency_ms": 3074.5518330004415,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "dev-accessible-07",
+      "structured_output_valid": false,
+      "unsupported_claim": null,
+      "usage_input_tokens": 139,
+      "usage_output_tokens": 135,
+      "usage_total_tokens": 274
+    },
+    {
+      "errors": [
+        "3 validation errors for PartyPlan\nresources\n  Field required [type=missing, input_value={'party_plan': {'event_da...y and minimize costs.'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nclaimed_total_cost\n  Field required [type=missing, input_value={'party_plan': {'event_da...y and minimize costs.'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nparty_plan\n  Extra inputs are not permitted [type=extra_forbidden, input_value={'event_date': '2026-09-2...ty and minimize costs.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden"
+      ],
+      "expected_outcome": "FEASIBLE",
+      "failure_categories": [
+        "schema_invalid"
+      ],
+      "failure_labels": [
+        "schema_invalid",
+        "feasibility_misclassification"
+      ],
+      "feasibility_correct": false,
+      "hard_constraints_valid": false,
+      "latency_ms": 10925.875917004305,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "dev-multiple-choices-08",
+      "structured_output_valid": false,
+      "unsupported_claim": null,
+      "usage_input_tokens": 133,
+      "usage_output_tokens": 508,
+      "usage_total_tokens": 641
+    },
+    {
+      "errors": [
+        "3 validation errors for PartyPlan\nresources\n  Field required [type=missing, input_value={'party_plan': {'event_da...ather is unfavorable.'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nclaimed_total_cost\n  Field required [type=missing, input_value={'party_plan': {'event_da...ather is unfavorable.'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nparty_plan\n  Extra inputs are not permitted [type=extra_forbidden, input_value={'event_date': '2026-09-2...eather is unfavorable.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden"
+      ],
+      "expected_outcome": "NO_FEASIBLE_PLAN",
+      "failure_categories": [
+        "schema_invalid"
+      ],
+      "failure_labels": [
+        "schema_invalid",
+        "feasibility_misclassification"
+      ],
+      "feasibility_correct": false,
+      "hard_constraints_valid": false,
+      "latency_ms": 8953.469166001014,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "dev-impossible-combination-09",
+      "structured_output_valid": false,
+      "unsupported_claim": null,
+      "usage_input_tokens": 136,
+      "usage_output_tokens": 410,
+      "usage_total_tokens": 546
+    },
+    {
+      "errors": [
+        "3 validation errors for PartyPlan\nresources\n  Field required [type=missing, input_value={'party_plan': {'event_da...other_constraints': []}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nclaimed_total_cost\n  Field required [type=missing, input_value={'party_plan': {'event_da...other_constraints': []}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nparty_plan\n  Extra inputs are not permitted [type=extra_forbidden, input_value={'event_date': '2026-09-2...'other_constraints': []}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden"
+      ],
+      "expected_outcome": "HUMAN_REVIEW_REQUIRED",
+      "failure_categories": [
+        "schema_invalid"
+      ],
+      "failure_labels": [
+        "schema_invalid",
+        "feasibility_misclassification"
+      ],
+      "feasibility_correct": false,
+      "hard_constraints_valid": false,
+      "latency_ms": 3103.3214170020074,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "dev-allergy-evidence-10",
+      "structured_output_valid": false,
+      "unsupported_claim": null,
+      "usage_input_tokens": 138,
+      "usage_output_tokens": 134,
+      "usage_total_tokens": 272
+    }
+  ]
+}
