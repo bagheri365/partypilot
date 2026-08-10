@@ -1,0 +1,284 @@
+{
+  "metrics": {
+    "feasibility_accuracy": 0.875,
+    "hard_constraint_validity": 1.0,
+    "mean_latency_ms": 0.05938662499715974,
+    "no_feasible_plan_accuracy": 0.9230769230769231,
+    "scenario_count": 24
+  },
+  "scenarios": [
+    {
+      "candidate_resource_ids": [
+        [
+          "venue-brooklyn-loft",
+          "caterer-family-table",
+          "activity-craft-party"
+        ]
+      ],
+      "expected_outcome": "FEASIBLE",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.19190399984836404,
+      "predicted_outcome": "FEASIBLE",
+      "scenario_id": "dev-simple-feasible-01"
+    },
+    {
+      "candidate_resource_ids": [
+        [
+          "venue-brooklyn-loft",
+          "caterer-family-table",
+          "activity-craft-party"
+        ]
+      ],
+      "expected_outcome": "FEASIBLE",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.14558500015482423,
+      "predicted_outcome": "FEASIBLE",
+      "scenario_id": "dev-exact-budget-02"
+    },
+    {
+      "candidate_resource_ids": [],
+      "expected_outcome": "NO_FEASIBLE_PLAN",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.06619800001317344,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "dev-budget-infeasible-03"
+    },
+    {
+      "candidate_resource_ids": [],
+      "expected_outcome": "NO_FEASIBLE_PLAN",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.02597799993964145,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "dev-capacity-infeasible-04"
+    },
+    {
+      "candidate_resource_ids": [],
+      "expected_outcome": "NO_FEASIBLE_PLAN",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.0359030000254279,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "dev-unavailable-05"
+    },
+    {
+      "candidate_resource_ids": [],
+      "expected_outcome": "NO_FEASIBLE_PLAN",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.028080999982194044,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "dev-age-restricted-06"
+    },
+    {
+      "candidate_resource_ids": [],
+      "expected_outcome": "FEASIBLE",
+      "feasibility_correct": false,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.0330389998453029,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "dev-accessible-07"
+    },
+    {
+      "candidate_resource_ids": [
+        [
+          "venue-small-studio",
+          "caterer-family-table",
+          "activity-craft-party"
+        ],
+        [
+          "venue-brooklyn-loft",
+          "caterer-family-table",
+          "activity-craft-party"
+        ],
+        [
+          "venue-small-studio",
+          "caterer-premium",
+          "activity-craft-party"
+        ],
+        [
+          "venue-brooklyn-loft",
+          "caterer-premium",
+          "activity-craft-party"
+        ]
+      ],
+      "expected_outcome": "FEASIBLE",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.13709300014852488,
+      "predicted_outcome": "FEASIBLE",
+      "scenario_id": "dev-multiple-choices-08"
+    },
+    {
+      "candidate_resource_ids": [],
+      "expected_outcome": "NO_FEASIBLE_PLAN",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.025437999966015923,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "dev-impossible-combination-09"
+    },
+    {
+      "candidate_resource_ids": [],
+      "expected_outcome": "HUMAN_REVIEW_REQUIRED",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.0038159998894116143,
+      "predicted_outcome": "HUMAN_REVIEW_REQUIRED",
+      "scenario_id": "dev-allergy-evidence-10"
+    },
+    {
+      "candidate_resource_ids": [
+        [
+          "venue-brooklyn-loft",
+          "caterer-family-table",
+          "activity-craft-party"
+        ]
+      ],
+      "expected_outcome": "FEASIBLE",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.07630300001437718,
+      "predicted_outcome": "FEASIBLE",
+      "scenario_id": "frozen-feasible-11"
+    },
+    {
+      "candidate_resource_ids": [],
+      "expected_outcome": "NO_FEASIBLE_PLAN",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.054900999884921475,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "frozen-budget-12"
+    },
+    {
+      "candidate_resource_ids": [],
+      "expected_outcome": "NO_FEASIBLE_PLAN",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.02284399988639052,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "frozen-capacity-13"
+    },
+    {
+      "candidate_resource_ids": [],
+      "expected_outcome": "NO_FEASIBLE_PLAN",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.027810999881694443,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "frozen-age-14"
+    },
+    {
+      "candidate_resource_ids": [],
+      "expected_outcome": "FEASIBLE",
+      "feasibility_correct": false,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.030946000151743647,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "frozen-accessibility-15"
+    },
+    {
+      "candidate_resource_ids": [],
+      "expected_outcome": "NO_FEASIBLE_PLAN",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.03053499995075981,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "frozen-temporal-16"
+    },
+    {
+      "candidate_resource_ids": [
+        [
+          "venue-brooklyn-loft",
+          "caterer-family-table",
+          "activity-craft-party"
+        ]
+      ],
+      "expected_outcome": "NO_FEASIBLE_PLAN",
+      "feasibility_correct": false,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.07136500016713399,
+      "predicted_outcome": "FEASIBLE",
+      "scenario_id": "frozen-resource-conflict-17"
+    },
+    {
+      "candidate_resource_ids": [],
+      "expected_outcome": "HUMAN_REVIEW_REQUIRED",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.0037459999475686345,
+      "predicted_outcome": "HUMAN_REVIEW_REQUIRED",
+      "scenario_id": "frozen-dietary-evidence-18"
+    },
+    {
+      "candidate_resource_ids": [],
+      "expected_outcome": "NO_FEASIBLE_PLAN",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.18888999989030708,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "adv-low-budget-19"
+    },
+    {
+      "candidate_resource_ids": [],
+      "expected_outcome": "NO_FEASIBLE_PLAN",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.030285000093499548,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "adv-large-party-20"
+    },
+    {
+      "candidate_resource_ids": [],
+      "expected_outcome": "NO_FEASIBLE_PLAN",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.02062099997601763,
+      "predicted_outcome": "NO_FEASIBLE_PLAN",
+      "scenario_id": "adv-wrong-location-21"
+    },
+    {
+      "candidate_resource_ids": [
+        [
+          "venue-brooklyn-loft",
+          "caterer-family-table",
+          "activity-craft-party"
+        ]
+      ],
+      "expected_outcome": "FEASIBLE",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.08688900015840773,
+      "predicted_outcome": "FEASIBLE",
+      "scenario_id": "adv-time-boundary-22"
+    },
+    {
+      "candidate_resource_ids": [
+        [
+          "venue-brooklyn-loft",
+          "caterer-family-table",
+          "activity-craft-party"
+        ]
+      ],
+      "expected_outcome": "FEASIBLE",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.08019799997782684,
+      "predicted_outcome": "FEASIBLE",
+      "scenario_id": "adv-age-range-23"
+    },
+    {
+      "candidate_resource_ids": [],
+      "expected_outcome": "HUMAN_REVIEW_REQUIRED",
+      "feasibility_correct": true,
+      "hard_constraints_valid": true,
+      "latency_ms": 0.006910000138304895,
+      "predicted_outcome": "HUMAN_REVIEW_REQUIRED",
+      "scenario_id": "adv-complex-safety-24"
+    }
+  ]
+}

@@ -1,0 +1,1035 @@
+[
+  {
+    "scenario_id": "dev-simple-feasible-01",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 12,
+      "child_age": 8,
+      "child_age_range": null,
+      "total_budget": "1600.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "FEASIBLE",
+    "expected_hard_constraints": [
+      {
+        "identifier": "loc-01",
+        "key": "location",
+        "operator": "eq",
+        "value": "Brooklyn, NY",
+        "constraint_type": "HARD",
+        "description": "Resources must be in Brooklyn.",
+        "provenance": null
+      },
+      {
+        "identifier": "cap-01",
+        "key": "capacity",
+        "operator": "gte",
+        "value": 12,
+        "constraint_type": "HARD",
+        "description": "Capacity must cover 12 guests.",
+        "provenance": null
+      }
+    ],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [
+      "venue-brooklyn-loft",
+      "caterer-family-table",
+      "activity-craft-party"
+    ],
+    "relevant_evidence_ids": [],
+    "scenario_category": "feasible",
+    "complexity": {
+      "hard_constraint_count": 2,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 3,
+      "notes": []
+    },
+    "dataset_split": "development",
+    "labeling_notes": [
+      "Simple feasible baseline using default Brooklyn fixtures."
+    ]
+  },
+  {
+    "scenario_id": "dev-exact-budget-02",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 12,
+      "child_age": 8,
+      "child_age_range": null,
+      "total_budget": "1375.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "FEASIBLE",
+    "expected_hard_constraints": [
+      {
+        "identifier": "bud-02",
+        "key": "budget",
+        "operator": "lte",
+        "value": "1375.00",
+        "constraint_type": "HARD",
+        "description": "Exact-budget boundary is allowed.",
+        "provenance": null
+      }
+    ],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [
+      "venue-brooklyn-loft",
+      "caterer-family-table",
+      "activity-craft-party"
+    ],
+    "relevant_evidence_ids": [],
+    "scenario_category": "feasible",
+    "complexity": {
+      "hard_constraint_count": 3,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 3,
+      "notes": []
+    },
+    "dataset_split": "development",
+    "labeling_notes": [
+      "Known fixture combination totals exactly 1375.00."
+    ]
+  },
+  {
+    "scenario_id": "dev-budget-infeasible-03",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 12,
+      "child_age": 8,
+      "child_age_range": null,
+      "total_budget": "900.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "NO_FEASIBLE_PLAN",
+    "expected_hard_constraints": [
+      {
+        "identifier": "bud-03",
+        "key": "budget",
+        "operator": "lte",
+        "value": "900.00",
+        "constraint_type": "HARD",
+        "description": "Total cost may not exceed 900.00.",
+        "provenance": null
+      }
+    ],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [],
+    "relevant_evidence_ids": [],
+    "scenario_category": "budget",
+    "complexity": {
+      "hard_constraint_count": 3,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 0,
+      "notes": []
+    },
+    "dataset_split": "development",
+    "labeling_notes": [
+      "No default venue+caterer+activity combination fits this budget."
+    ]
+  },
+  {
+    "scenario_id": "dev-capacity-infeasible-04",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 70,
+      "child_age": 8,
+      "child_age_range": null,
+      "total_budget": "4000.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "NO_FEASIBLE_PLAN",
+    "expected_hard_constraints": [
+      {
+        "identifier": "cap-04",
+        "key": "capacity",
+        "operator": "gte",
+        "value": 70,
+        "constraint_type": "HARD",
+        "description": "Each selected capacity-bearing resource must support 70 guests.",
+        "provenance": null
+      }
+    ],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [],
+    "relevant_evidence_ids": [],
+    "scenario_category": "capacity",
+    "complexity": {
+      "hard_constraint_count": 3,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 0,
+      "notes": []
+    },
+    "dataset_split": "development",
+    "labeling_notes": []
+  },
+  {
+    "scenario_id": "dev-unavailable-05",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "19:30:00",
+      "guest_count": 12,
+      "child_age": 8,
+      "child_age_range": null,
+      "total_budget": "1600.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "NO_FEASIBLE_PLAN",
+    "expected_hard_constraints": [
+      {
+        "identifier": "avail-05",
+        "key": "availability",
+        "operator": "contains",
+        "value": "19:30-21:30",
+        "constraint_type": "HARD",
+        "description": "Resources must cover the full event window.",
+        "provenance": null
+      }
+    ],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [],
+    "relevant_evidence_ids": [],
+    "scenario_category": "availability",
+    "complexity": {
+      "hard_constraint_count": 4,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 0,
+      "notes": []
+    },
+    "dataset_split": "development",
+    "labeling_notes": []
+  },
+  {
+    "scenario_id": "dev-age-restricted-06",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 12,
+      "child_age": 4,
+      "child_age_range": null,
+      "total_budget": "1600.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "NO_FEASIBLE_PLAN",
+    "expected_hard_constraints": [
+      {
+        "identifier": "age-06",
+        "key": "child_age",
+        "operator": "gte",
+        "value": 5,
+        "constraint_type": "HARD",
+        "description": "Selected activity must permit age 4; current craft fixture does not.",
+        "provenance": null
+      }
+    ],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [],
+    "relevant_evidence_ids": [],
+    "scenario_category": "age_restriction",
+    "complexity": {
+      "hard_constraint_count": 4,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 0,
+      "notes": []
+    },
+    "dataset_split": "development",
+    "labeling_notes": []
+  },
+  {
+    "scenario_id": "dev-accessible-07",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 12,
+      "child_age": 8,
+      "child_age_range": null,
+      "total_budget": "1600.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [
+        "wheelchair_accessible"
+      ],
+      "other_constraints": []
+    },
+    "expected_feasibility": "FEASIBLE",
+    "expected_hard_constraints": [
+      {
+        "identifier": "access-07",
+        "key": "accessibility",
+        "operator": "contains",
+        "value": "wheelchair_accessible",
+        "constraint_type": "HARD",
+        "description": "Venue must be wheelchair accessible.",
+        "provenance": null
+      }
+    ],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [
+      "venue-brooklyn-loft",
+      "caterer-family-table",
+      "activity-craft-party"
+    ],
+    "relevant_evidence_ids": [],
+    "scenario_category": "accessibility",
+    "complexity": {
+      "hard_constraint_count": 4,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 3,
+      "notes": []
+    },
+    "dataset_split": "development",
+    "labeling_notes": [
+      "Venue satisfies the named need; full-plan accessibility support remains resource-specific."
+    ]
+  },
+  {
+    "scenario_id": "dev-multiple-choices-08",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 8,
+      "child_age": null,
+      "child_age_range": null,
+      "total_budget": "3000.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "FEASIBLE",
+    "expected_hard_constraints": [],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [
+      "venue-brooklyn-loft",
+      "caterer-family-table",
+      "activity-craft-party"
+    ],
+    "relevant_evidence_ids": [],
+    "scenario_category": "multiple_choices",
+    "complexity": {
+      "hard_constraint_count": 3,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 3,
+      "notes": []
+    },
+    "dataset_split": "development",
+    "labeling_notes": [
+      "Multiple structured choices may survive initial filtering; expected IDs identify an acceptable baseline combination."
+    ]
+  },
+  {
+    "scenario_id": "dev-impossible-combination-09",
+    "request": {
+      "location": "Queens, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 12,
+      "child_age": 14,
+      "child_age_range": null,
+      "total_budget": "3000.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "NO_FEASIBLE_PLAN",
+    "expected_hard_constraints": [
+      {
+        "identifier": "loc-09",
+        "key": "location",
+        "operator": "eq",
+        "value": "Queens, NY",
+        "constraint_type": "HARD",
+        "description": "All required resource categories must be available in Queens.",
+        "provenance": null
+      }
+    ],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [],
+    "relevant_evidence_ids": [],
+    "scenario_category": "impossible_combination",
+    "complexity": {
+      "hard_constraint_count": 4,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 0,
+      "notes": []
+    },
+    "dataset_split": "development",
+    "labeling_notes": []
+  },
+  {
+    "scenario_id": "dev-allergy-evidence-10",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 12,
+      "child_age": 8,
+      "child_age_range": null,
+      "total_budget": "1600.00",
+      "theme_preferences": [],
+      "allergies": [
+        "peanuts"
+      ],
+      "dietary_restrictions": [],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "HUMAN_REVIEW_REQUIRED",
+    "expected_hard_constraints": [],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [],
+    "relevant_evidence_ids": [
+      "evidence-caterer-peanut-policy"
+    ],
+    "scenario_category": "safety_evidence",
+    "complexity": {
+      "hard_constraint_count": 4,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 0,
+      "notes": []
+    },
+    "dataset_split": "development",
+    "labeling_notes": [
+      "Structured fixtures do not establish allergen-safety claims."
+    ]
+  },
+  {
+    "scenario_id": "frozen-feasible-11",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 10,
+      "child_age": 8,
+      "child_age_range": null,
+      "total_budget": "1500.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "FEASIBLE",
+    "expected_hard_constraints": [],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [
+      "venue-brooklyn-loft",
+      "caterer-family-table",
+      "activity-craft-party"
+    ],
+    "relevant_evidence_ids": [],
+    "scenario_category": "feasible",
+    "complexity": {
+      "hard_constraint_count": 3,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 3,
+      "notes": []
+    },
+    "dataset_split": "frozen_test",
+    "labeling_notes": []
+  },
+  {
+    "scenario_id": "frozen-budget-12",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 12,
+      "child_age": 8,
+      "child_age_range": null,
+      "total_budget": "1000.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "NO_FEASIBLE_PLAN",
+    "expected_hard_constraints": [
+      {
+        "identifier": "bud-12",
+        "key": "budget",
+        "operator": "lte",
+        "value": "1000.00",
+        "constraint_type": "HARD",
+        "description": "Total must not exceed frozen-test budget.",
+        "provenance": null
+      }
+    ],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [],
+    "relevant_evidence_ids": [],
+    "scenario_category": "budget",
+    "complexity": {
+      "hard_constraint_count": 3,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 0,
+      "notes": []
+    },
+    "dataset_split": "frozen_test",
+    "labeling_notes": []
+  },
+  {
+    "scenario_id": "frozen-capacity-13",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 55,
+      "child_age": 8,
+      "child_age_range": null,
+      "total_budget": "4000.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "NO_FEASIBLE_PLAN",
+    "expected_hard_constraints": [
+      {
+        "identifier": "cap-13",
+        "key": "capacity",
+        "operator": "gte",
+        "value": 55,
+        "constraint_type": "HARD",
+        "description": "Venue and activity capacity must cover 55 guests.",
+        "provenance": null
+      }
+    ],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [],
+    "relevant_evidence_ids": [],
+    "scenario_category": "capacity",
+    "complexity": {
+      "hard_constraint_count": 3,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 0,
+      "notes": []
+    },
+    "dataset_split": "frozen_test",
+    "labeling_notes": []
+  },
+  {
+    "scenario_id": "frozen-age-14",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 12,
+      "child_age": 13,
+      "child_age_range": null,
+      "total_budget": "1600.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "NO_FEASIBLE_PLAN",
+    "expected_hard_constraints": [
+      {
+        "identifier": "age-14",
+        "key": "child_age",
+        "operator": "in",
+        "value": [
+          5,
+          12
+        ],
+        "constraint_type": "HARD",
+        "description": "Brooklyn craft activity supports ages 5 through 12.",
+        "provenance": null
+      }
+    ],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [],
+    "relevant_evidence_ids": [],
+    "scenario_category": "age_restriction",
+    "complexity": {
+      "hard_constraint_count": 4,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 0,
+      "notes": []
+    },
+    "dataset_split": "frozen_test",
+    "labeling_notes": []
+  },
+  {
+    "scenario_id": "frozen-accessibility-15",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 12,
+      "child_age": 8,
+      "child_age_range": null,
+      "total_budget": "1600.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [
+        "accessible_restroom"
+      ],
+      "other_constraints": []
+    },
+    "expected_feasibility": "FEASIBLE",
+    "expected_hard_constraints": [
+      {
+        "identifier": "access-15",
+        "key": "accessibility",
+        "operator": "contains",
+        "value": "accessible_restroom",
+        "constraint_type": "HARD",
+        "description": "Venue requires an accessible restroom.",
+        "provenance": null
+      }
+    ],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [
+      "venue-brooklyn-loft",
+      "caterer-family-table",
+      "activity-craft-party"
+    ],
+    "relevant_evidence_ids": [],
+    "scenario_category": "accessibility",
+    "complexity": {
+      "hard_constraint_count": 4,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 3,
+      "notes": []
+    },
+    "dataset_split": "frozen_test",
+    "labeling_notes": []
+  },
+  {
+    "scenario_id": "frozen-temporal-16",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "17:30:00",
+      "guest_count": 12,
+      "child_age": 8,
+      "child_age_range": null,
+      "total_budget": "1600.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "NO_FEASIBLE_PLAN",
+    "expected_hard_constraints": [
+      {
+        "identifier": "time-16",
+        "key": "event_time",
+        "operator": "lte",
+        "value": "18:00:00",
+        "constraint_type": "HARD",
+        "description": "A two-hour event must finish within activity availability.",
+        "provenance": null
+      }
+    ],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [],
+    "relevant_evidence_ids": [],
+    "scenario_category": "temporal",
+    "complexity": {
+      "hard_constraint_count": 5,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 0,
+      "notes": [
+        "Tests an event window near fixture closing time."
+      ]
+    },
+    "dataset_split": "frozen_test",
+    "labeling_notes": []
+  },
+  {
+    "scenario_id": "frozen-resource-conflict-17",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 12,
+      "child_age": 8,
+      "child_age_range": null,
+      "total_budget": "2000.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "NO_FEASIBLE_PLAN",
+    "expected_hard_constraints": [
+      {
+        "identifier": "resource-17",
+        "key": "exclusive_resource",
+        "operator": "eq",
+        "value": "shared-room-a",
+        "constraint_type": "HARD",
+        "description": "An exclusive room cannot serve overlapping tasks.",
+        "provenance": null
+      }
+    ],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [],
+    "relevant_evidence_ids": [],
+    "scenario_category": "resource_conflict",
+    "complexity": {
+      "hard_constraint_count": 5,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 0,
+      "notes": []
+    },
+    "dataset_split": "frozen_test",
+    "labeling_notes": [
+      "Ground truth represents an exclusive-resource double-booking scenario for temporal validation."
+    ]
+  },
+  {
+    "scenario_id": "frozen-dietary-evidence-18",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 12,
+      "child_age": 8,
+      "child_age_range": null,
+      "total_budget": "1600.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [
+        "gluten-free"
+      ],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "HUMAN_REVIEW_REQUIRED",
+    "expected_hard_constraints": [],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [],
+    "relevant_evidence_ids": [
+      "evidence-caterer-gluten-policy"
+    ],
+    "scenario_category": "safety_evidence",
+    "complexity": {
+      "hard_constraint_count": 4,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 0,
+      "notes": []
+    },
+    "dataset_split": "frozen_test",
+    "labeling_notes": [
+      "No structured dietary-policy field proves gluten-free suitability."
+    ]
+  },
+  {
+    "scenario_id": "adv-low-budget-19",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 1,
+      "child_age": null,
+      "child_age_range": null,
+      "total_budget": "0.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "NO_FEASIBLE_PLAN",
+    "expected_hard_constraints": [
+      {
+        "identifier": "bud-19",
+        "key": "budget",
+        "operator": "lte",
+        "value": "0.00",
+        "constraint_type": "HARD",
+        "description": "Zero budget cannot cover any fixture combination.",
+        "provenance": null
+      }
+    ],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [],
+    "relevant_evidence_ids": [],
+    "scenario_category": "budget",
+    "complexity": {
+      "hard_constraint_count": 3,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 0,
+      "notes": []
+    },
+    "dataset_split": "adversarial",
+    "labeling_notes": []
+  },
+  {
+    "scenario_id": "adv-large-party-20",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 121,
+      "child_age": null,
+      "child_age_range": null,
+      "total_budget": "10000.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "NO_FEASIBLE_PLAN",
+    "expected_hard_constraints": [
+      {
+        "identifier": "cap-20",
+        "key": "capacity",
+        "operator": "gte",
+        "value": 121,
+        "constraint_type": "HARD",
+        "description": "No fixture supports 121 guests.",
+        "provenance": null
+      }
+    ],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [],
+    "relevant_evidence_ids": [],
+    "scenario_category": "capacity",
+    "complexity": {
+      "hard_constraint_count": 3,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 0,
+      "notes": []
+    },
+    "dataset_split": "adversarial",
+    "labeling_notes": []
+  },
+  {
+    "scenario_id": "adv-wrong-location-21",
+    "request": {
+      "location": "Manhattan, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 6,
+      "child_age": null,
+      "child_age_range": null,
+      "total_budget": "5000.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "NO_FEASIBLE_PLAN",
+    "expected_hard_constraints": [
+      {
+        "identifier": "loc-21",
+        "key": "location",
+        "operator": "eq",
+        "value": "Manhattan, NY",
+        "constraint_type": "HARD",
+        "description": "All required resources must be in Manhattan.",
+        "provenance": null
+      }
+    ],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [],
+    "relevant_evidence_ids": [],
+    "scenario_category": "impossible_combination",
+    "complexity": {
+      "hard_constraint_count": 3,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 0,
+      "notes": []
+    },
+    "dataset_split": "adversarial",
+    "labeling_notes": []
+  },
+  {
+    "scenario_id": "adv-time-boundary-22",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "16:00:00",
+      "guest_count": 10,
+      "child_age": 8,
+      "child_age_range": null,
+      "total_budget": "1600.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "FEASIBLE",
+    "expected_hard_constraints": [
+      {
+        "identifier": "time-22",
+        "key": "event_time",
+        "operator": "eq",
+        "value": "16:00:00",
+        "constraint_type": "HARD",
+        "description": "A two-hour event ending exactly at 18:00 is permitted.",
+        "provenance": null
+      }
+    ],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [
+      "venue-brooklyn-loft",
+      "caterer-family-table",
+      "activity-craft-party"
+    ],
+    "relevant_evidence_ids": [],
+    "scenario_category": "temporal",
+    "complexity": {
+      "hard_constraint_count": 5,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 3,
+      "notes": []
+    },
+    "dataset_split": "adversarial",
+    "labeling_notes": [
+      "Boundary case: activity availability ends exactly when the event ends."
+    ]
+  },
+  {
+    "scenario_id": "adv-age-range-23",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 12,
+      "child_age": null,
+      "child_age_range": {
+        "minimum": 5,
+        "maximum": 12
+      },
+      "total_budget": "1600.00",
+      "theme_preferences": [],
+      "allergies": [],
+      "dietary_restrictions": [],
+      "accessibility_needs": [],
+      "other_constraints": []
+    },
+    "expected_feasibility": "FEASIBLE",
+    "expected_hard_constraints": [
+      {
+        "identifier": "age-23",
+        "key": "child_age_range",
+        "operator": "in",
+        "value": [
+          5,
+          12
+        ],
+        "constraint_type": "HARD",
+        "description": "Selected activity must support the full requested age range.",
+        "provenance": null
+      }
+    ],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [
+      "venue-brooklyn-loft",
+      "caterer-family-table",
+      "activity-craft-party"
+    ],
+    "relevant_evidence_ids": [],
+    "scenario_category": "age_restriction",
+    "complexity": {
+      "hard_constraint_count": 5,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 3,
+      "notes": []
+    },
+    "dataset_split": "adversarial",
+    "labeling_notes": []
+  },
+  {
+    "scenario_id": "adv-complex-safety-24",
+    "request": {
+      "location": "Brooklyn, NY",
+      "event_date": "2026-09-20",
+      "event_time": "13:00:00",
+      "guest_count": 25,
+      "child_age": 8,
+      "child_age_range": null,
+      "total_budget": "1800.00",
+      "theme_preferences": [],
+      "allergies": [
+        "peanuts",
+        "tree nuts"
+      ],
+      "dietary_restrictions": [
+        "vegan"
+      ],
+      "accessibility_needs": [
+        "wheelchair_accessible"
+      ],
+      "other_constraints": [
+        "quiet room required"
+      ]
+    },
+    "expected_feasibility": "HUMAN_REVIEW_REQUIRED",
+    "expected_hard_constraints": [],
+    "expected_derived_constraints": [],
+    "expected_resource_ids": [],
+    "relevant_evidence_ids": [
+      "evidence-allergen-policy",
+      "evidence-vegan-menu",
+      "evidence-quiet-room"
+    ],
+    "scenario_category": "safety_evidence",
+    "complexity": {
+      "hard_constraint_count": 8,
+      "derived_constraint_count": 0,
+      "expected_resource_count": 0,
+      "notes": [
+        "Combines structured constraints with multiple evidence-dependent safety and accommodation claims."
+      ]
+    },
+    "dataset_split": "adversarial",
+    "labeling_notes": [
+      "Must not be labeled feasible without policy evidence for every unresolved safety/accommodation need."
+    ]
+  }
+]
