@@ -1,0 +1,3269 @@
+{
+  "system_name": "PartyPilot v0.4 multi-agent coordination experiment",
+  "benchmark_name": "v0.4 multi-agent coordination benchmark",
+  "benchmark_version": "1.0",
+  "baseline_architecture": "v0.3_stateful_single_planner",
+  "multi_agent_architecture": "minimal_specialist_coordination",
+  "evaluation_variant": "v0_3_stateful_single_planner_vs_minimal_specialist_coordination",
+  "metrics": {
+    "scenario_count": 10,
+    "evidence_relevant_scenario_count": 8,
+    "global_optimum_scenario_count": 1,
+    "human_review_scenario_count": 3,
+    "baseline": {
+      "architecture": "v0.3_stateful_single_planner",
+      "scenario_count": 10,
+      "final_decision_accuracy": 0.6,
+      "hard_constraint_validity": 0.6,
+      "cross_domain_compatibility_accuracy": 0.5,
+      "evidence_grounded_arbitration_accuracy": 0.0,
+      "global_optimum_accuracy": 1.0,
+      "human_review_calibration": 0.0,
+      "disagreement_resolved_correctly_count": 0,
+      "disagreement_resolved_incorrectly_count": 2,
+      "specialist_call_count": 0,
+      "coordination_overhead_count": 0,
+      "mean_latency_ms": 0.009066697384696454
+    },
+    "coordinated": {
+      "architecture": "minimal_specialist_coordination",
+      "scenario_count": 10,
+      "final_decision_accuracy": 1.0,
+      "hard_constraint_validity": 0.6,
+      "cross_domain_compatibility_accuracy": 0.7,
+      "evidence_grounded_arbitration_accuracy": 1.0,
+      "global_optimum_accuracy": 1.0,
+      "human_review_calibration": 1.0,
+      "disagreement_resolved_correctly_count": 2,
+      "disagreement_resolved_incorrectly_count": 0,
+      "specialist_call_count": 50,
+      "coordination_overhead_count": 80,
+      "mean_latency_ms": 0.0932039984036237
+    },
+    "coordination_overhead_ratio": null,
+    "retention_rule_passed": true
+  },
+  "scenarios": [
+    {
+      "scenario_id": "cap-boundary-41-venue-caterer-dependency",
+      "title": "Venue and caterer dependency",
+      "description": "Approval rules create a cross-resource dependency between venue and caterer.",
+      "capability_tags": [
+        "cross_domain",
+        "dependency_chain",
+        "replanning"
+      ],
+      "requires_evidence": true,
+      "requires_global_optimum": false,
+      "expected_feasibility": "NO_FEASIBLE_PLAN",
+      "baseline": {
+        "architecture": "v0.3_stateful_single_planner",
+        "feasibility_outcome": "FEASIBLE",
+        "selected_resource_ids": [
+          "venue-boston-studio",
+          "caterer-boston-buffet"
+        ],
+        "total_cost": 726.0,
+        "latency_ms": 0.018749997252598405,
+        "hard_constraint_validity": true,
+        "cross_domain_compatibility": false,
+        "evidence_grounded_arbitration": false,
+        "global_optimum": null,
+        "human_review_calibrated": null,
+        "disagreement_resolved_correctly": false,
+        "disagreement_resolved_incorrectly": false,
+        "specialist_call_count": 0,
+        "coordination_overhead_count": 0,
+        "arbitration": null,
+        "specialist_decisions": [],
+        "notes": [
+          "Baseline path uses only structured filtering and cost ranking."
+        ],
+        "failure_stage": "cross_domain_compatibility"
+      },
+      "coordinated": {
+        "architecture": "minimal_specialist_coordination",
+        "feasibility_outcome": "NO_FEASIBLE_PLAN",
+        "selected_resource_ids": [
+          "venue-boston-studio",
+          "caterer-boston-buffet"
+        ],
+        "total_cost": 726.0,
+        "latency_ms": 0.09604099614080042,
+        "hard_constraint_validity": true,
+        "cross_domain_compatibility": false,
+        "evidence_grounded_arbitration": true,
+        "global_optimum": null,
+        "human_review_calibrated": null,
+        "disagreement_resolved_correctly": false,
+        "disagreement_resolved_incorrectly": false,
+        "specialist_call_count": 5,
+        "coordination_overhead_count": 5,
+        "arbitration": {
+          "outcome": "REJECT",
+          "feasibility_outcome": "NO_FEASIBLE_PLAN",
+          "selected_resource_ids": [
+            "venue-boston-studio",
+            "caterer-boston-buffet"
+          ],
+          "accepted_specialist_ids": [
+            "catering",
+            "accessibility",
+            "scheduling",
+            "budget"
+          ],
+          "rejected_specialist_ids": [
+            "venue"
+          ],
+          "overridden_specialist_ids": [
+            "catering",
+            "accessibility",
+            "scheduling",
+            "budget"
+          ],
+          "controlling_evidence_ids": [
+            "doc-cap41-approved-caterer-list",
+            "doc-cap41-caterer-vendor-rule"
+          ],
+          "dependency_conflicts": [
+            "catering_safety"
+          ],
+          "unresolved_uncertainties": [],
+          "reasons": [
+            "A hard specialist rejection blocks the candidate."
+          ],
+          "global_score": 726.0,
+          "coordination_steps": [
+            "specialist:venue:REJECT",
+            "specialist:catering:ACCEPT",
+            "specialist:accessibility:ACCEPT",
+            "specialist:scheduling:ACCEPT",
+            "specialist:budget:ACCEPT"
+          ]
+        },
+        "specialist_decisions": [
+          {
+            "specialist_id": "venue",
+            "domain": "venue",
+            "recommendation": "reject venue-boston-studio",
+            "status": "REJECT",
+            "hard_constraints_considered": [
+              "venue",
+              "location",
+              "capacity"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap41-approved-caterer-list",
+                "state": "CONFLICTED",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap41-approved-caterer-list",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-studio",
+                    "source_version": "1.1",
+                    "effective_date": "2026-12-01",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "The venue must be compatible with the chosen caterer and activity."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 0.0,
+            "local_rank": 1,
+            "recommended_resource_ids": [
+              "venue-boston-studio"
+            ],
+            "reasons_for_rejection": [
+              "Venue-caterer approval dependency is incompatible."
+            ],
+            "dependency_decision_ids": [
+              "catering_safety"
+            ],
+            "notes": [
+              "Venue specialist evaluates location, accessibility, and venue-specific policies."
+            ]
+          },
+          {
+            "specialist_id": "catering",
+            "domain": "catering_safety",
+            "recommendation": "accept caterer-boston-buffet",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "dietary_safety",
+              "catering_compatibility",
+              "budget"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap41-caterer-vendor-rule",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap41-caterer-vendor-rule",
+                    "source_chunk_id": null,
+                    "resource_id": "caterer-boston-buffet",
+                    "source_version": "1.0",
+                    "effective_date": "2026-12-01",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "The caterer must satisfy requested dietary and venue rules."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 2,
+            "recommended_resource_ids": [
+              "caterer-boston-buffet"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Catering specialist evaluates food safety and venue-policy compatibility."
+            ]
+          },
+          {
+            "specialist_id": "accessibility",
+            "domain": "accessibility",
+            "recommendation": "accept venue-boston-studio",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "accessibility",
+              "room",
+              "path",
+              "restroom"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap41-approved-caterer-list",
+                "state": "CONFLICTED",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap41-approved-caterer-list",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-studio",
+                    "source_version": "1.1",
+                    "effective_date": "2026-12-01",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "Accessibility is enforced against the venue and relevant room/path."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 3,
+            "recommended_resource_ids": [
+              "venue-boston-studio"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Accessibility specialist checks venue-level and room-level evidence."
+            ]
+          },
+          {
+            "specialist_id": "scheduling",
+            "domain": "scheduling_operations",
+            "recommendation": "accept venue-boston-studio",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "schedule",
+              "setup",
+              "delivery",
+              "dependency_chain"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap41-approved-caterer-list",
+                "state": "CONFLICTED",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap41-approved-caterer-list",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-studio",
+                    "source_version": "1.1",
+                    "effective_date": "2026-12-01",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap41-caterer-vendor-rule",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap41-caterer-vendor-rule",
+                    "source_chunk_id": null,
+                    "resource_id": "caterer-boston-buffet",
+                    "source_version": "1.0",
+                    "effective_date": "2026-12-01",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "The schedule must remain valid across all selected resources."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 4,
+            "recommended_resource_ids": [
+              "venue-boston-studio"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Scheduling specialist checks dependencies across venue, catering, and activity."
+            ]
+          },
+          {
+            "specialist_id": "budget",
+            "domain": "budget",
+            "recommendation": "Choose the least-cost viable combination.",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "budget",
+              "fees",
+              "total_cost"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "Budget checks use parsed explicit fee text when available."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 5,
+            "recommended_resource_ids": [
+              "venue-boston-studio",
+              "caterer-boston-buffet"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Budget specialist compares total cost against the request budget."
+            ]
+          }
+        ],
+        "notes": [
+          "Minimal specialist coordination with explicit arbitration."
+        ],
+        "failure_stage": null
+      },
+      "disagreement_present": false,
+      "notes": [
+        "Venue approval and caterer compatibility are mutually dependent"
+      ]
+    },
+    {
+      "scenario_id": "cap-boundary-42-venue-activity-dependency",
+      "title": "Venue and activity dependency",
+      "description": "An activity requires venue capabilities that are missing from the candidate.",
+      "capability_tags": [
+        "cross_domain",
+        "activity_dependency",
+        "replanning"
+      ],
+      "requires_evidence": true,
+      "requires_global_optimum": false,
+      "expected_feasibility": "NO_FEASIBLE_PLAN",
+      "baseline": {
+        "architecture": "v0.3_stateful_single_planner",
+        "feasibility_outcome": "NO_FEASIBLE_PLAN",
+        "selected_resource_ids": [],
+        "total_cost": null,
+        "latency_ms": 0.006165995728224516,
+        "hard_constraint_validity": false,
+        "cross_domain_compatibility": false,
+        "evidence_grounded_arbitration": false,
+        "global_optimum": null,
+        "human_review_calibrated": null,
+        "disagreement_resolved_correctly": false,
+        "disagreement_resolved_incorrectly": false,
+        "specialist_call_count": 0,
+        "coordination_overhead_count": 0,
+        "arbitration": null,
+        "specialist_decisions": [],
+        "notes": [
+          "Baseline path uses only structured filtering and cost ranking."
+        ],
+        "failure_stage": null
+      },
+      "coordinated": {
+        "architecture": "minimal_specialist_coordination",
+        "feasibility_outcome": "NO_FEASIBLE_PLAN",
+        "selected_resource_ids": [
+          "venue-brooklyn-loft",
+          "activity-craft-party"
+        ],
+        "total_cost": 500.0,
+        "latency_ms": 0.06904099427629262,
+        "hard_constraint_validity": false,
+        "cross_domain_compatibility": false,
+        "evidence_grounded_arbitration": true,
+        "global_optimum": null,
+        "human_review_calibrated": null,
+        "disagreement_resolved_correctly": false,
+        "disagreement_resolved_incorrectly": false,
+        "specialist_call_count": 5,
+        "coordination_overhead_count": 5,
+        "arbitration": {
+          "outcome": "REJECT",
+          "feasibility_outcome": "NO_FEASIBLE_PLAN",
+          "selected_resource_ids": [
+            "venue-brooklyn-loft",
+            "activity-craft-party"
+          ],
+          "accepted_specialist_ids": [
+            "catering",
+            "accessibility",
+            "scheduling",
+            "budget"
+          ],
+          "rejected_specialist_ids": [
+            "venue"
+          ],
+          "overridden_specialist_ids": [
+            "catering",
+            "accessibility",
+            "scheduling",
+            "budget"
+          ],
+          "controlling_evidence_ids": [
+            "doc-cap42-venue-no-prep-room",
+            "doc-cap42-activity-prep-requirement"
+          ],
+          "dependency_conflicts": [],
+          "unresolved_uncertainties": [],
+          "reasons": [
+            "A hard specialist rejection blocks the candidate."
+          ],
+          "global_score": 500.0,
+          "coordination_steps": [
+            "specialist:venue:REJECT",
+            "specialist:catering:ACCEPT",
+            "specialist:accessibility:ACCEPT",
+            "specialist:scheduling:ACCEPT",
+            "specialist:budget:ACCEPT"
+          ]
+        },
+        "specialist_decisions": [
+          {
+            "specialist_id": "venue",
+            "domain": "venue",
+            "recommendation": "reject venue-brooklyn-loft",
+            "status": "REJECT",
+            "hard_constraints_considered": [
+              "venue",
+              "location",
+              "capacity"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap42-venue-no-prep-room",
+                "state": "SUPPORTED",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap42-venue-no-prep-room",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-brooklyn-loft",
+                    "source_version": "3.6",
+                    "effective_date": "2026-12-10",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "The venue must be compatible with the chosen caterer and activity."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 0.0,
+            "local_rank": 1,
+            "recommended_resource_ids": [
+              "venue-brooklyn-loft"
+            ],
+            "reasons_for_rejection": [
+              "Venue evidence blocks the candidate."
+            ],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Venue specialist evaluates location, accessibility, and venue-specific policies."
+            ]
+          },
+          {
+            "specialist_id": "catering",
+            "domain": "catering_safety",
+            "recommendation": "accept none",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "dietary_safety",
+              "catering_compatibility",
+              "budget"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "The caterer must satisfy requested dietary and venue rules."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 2,
+            "recommended_resource_ids": [],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Catering specialist evaluates food safety and venue-policy compatibility."
+            ]
+          },
+          {
+            "specialist_id": "accessibility",
+            "domain": "accessibility",
+            "recommendation": "accept venue-brooklyn-loft",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "accessibility",
+              "room",
+              "path",
+              "restroom"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap42-venue-no-prep-room",
+                "state": "SUPPORTED",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap42-venue-no-prep-room",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-brooklyn-loft",
+                    "source_version": "3.6",
+                    "effective_date": "2026-12-10",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "Accessibility is enforced against the venue and relevant room/path."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 3,
+            "recommended_resource_ids": [
+              "venue-brooklyn-loft"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Accessibility specialist checks venue-level and room-level evidence."
+            ]
+          },
+          {
+            "specialist_id": "scheduling",
+            "domain": "scheduling_operations",
+            "recommendation": "accept venue-brooklyn-loft",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "schedule",
+              "setup",
+              "delivery",
+              "dependency_chain"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap42-venue-no-prep-room",
+                "state": "SUPPORTED",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap42-venue-no-prep-room",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-brooklyn-loft",
+                    "source_version": "3.6",
+                    "effective_date": "2026-12-10",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap42-activity-prep-requirement",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap42-activity-prep-requirement",
+                    "source_chunk_id": null,
+                    "resource_id": "activity-craft-party",
+                    "source_version": "1.2",
+                    "effective_date": "2026-12-10",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "The schedule must remain valid across all selected resources."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 4,
+            "recommended_resource_ids": [
+              "venue-brooklyn-loft",
+              "activity-craft-party"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Scheduling specialist checks dependencies across venue, catering, and activity."
+            ]
+          },
+          {
+            "specialist_id": "budget",
+            "domain": "budget",
+            "recommendation": "Choose the least-cost viable combination.",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "budget",
+              "fees",
+              "total_cost"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "Budget checks use parsed explicit fee text when available."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 5,
+            "recommended_resource_ids": [
+              "venue-brooklyn-loft",
+              "activity-craft-party"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Budget specialist compares total cost against the request budget."
+            ]
+          }
+        ],
+        "notes": [
+          "Minimal specialist coordination with explicit arbitration."
+        ],
+        "failure_stage": null
+      },
+      "disagreement_present": false,
+      "notes": [
+        "Activity-hosting feasibility depends on venue capabilities"
+      ]
+    },
+    {
+      "scenario_id": "cap-boundary-43-setup-scheduling-chain",
+      "title": "Setup scheduling chain",
+      "description": "Setup windows across venue, caterer, and activity do not compose cleanly.",
+      "capability_tags": [
+        "temporal_dependency",
+        "setup_chain",
+        "replanning"
+      ],
+      "requires_evidence": true,
+      "requires_global_optimum": false,
+      "expected_feasibility": "NO_FEASIBLE_PLAN",
+      "baseline": {
+        "architecture": "v0.3_stateful_single_planner",
+        "feasibility_outcome": "NO_FEASIBLE_PLAN",
+        "selected_resource_ids": [],
+        "total_cost": null,
+        "latency_ms": 0.006916990969330072,
+        "hard_constraint_validity": false,
+        "cross_domain_compatibility": false,
+        "evidence_grounded_arbitration": false,
+        "global_optimum": null,
+        "human_review_calibrated": null,
+        "disagreement_resolved_correctly": false,
+        "disagreement_resolved_incorrectly": false,
+        "specialist_call_count": 0,
+        "coordination_overhead_count": 0,
+        "arbitration": null,
+        "specialist_decisions": [],
+        "notes": [
+          "Baseline path uses only structured filtering and cost ranking."
+        ],
+        "failure_stage": null
+      },
+      "coordinated": {
+        "architecture": "minimal_specialist_coordination",
+        "feasibility_outcome": "NO_FEASIBLE_PLAN",
+        "selected_resource_ids": [
+          "venue-boston-evening-hall",
+          "caterer-boston-buffet",
+          "activity-craft-party"
+        ],
+        "total_cost": 1580.0,
+        "latency_ms": 0.082333994214423,
+        "hard_constraint_validity": false,
+        "cross_domain_compatibility": true,
+        "evidence_grounded_arbitration": true,
+        "global_optimum": null,
+        "human_review_calibrated": null,
+        "disagreement_resolved_correctly": false,
+        "disagreement_resolved_incorrectly": false,
+        "specialist_call_count": 5,
+        "coordination_overhead_count": 5,
+        "arbitration": {
+          "outcome": "REJECT",
+          "feasibility_outcome": "NO_FEASIBLE_PLAN",
+          "selected_resource_ids": [
+            "venue-boston-evening-hall",
+            "caterer-boston-buffet",
+            "activity-craft-party"
+          ],
+          "accepted_specialist_ids": [
+            "venue",
+            "catering",
+            "accessibility",
+            "budget"
+          ],
+          "rejected_specialist_ids": [
+            "scheduling"
+          ],
+          "overridden_specialist_ids": [
+            "venue",
+            "catering",
+            "accessibility",
+            "budget"
+          ],
+          "controlling_evidence_ids": [
+            "doc-cap43-venue-access",
+            "doc-cap43-setup-window",
+            "doc-cap43-caterer-setup",
+            "doc-cap43-activity-setup-window"
+          ],
+          "dependency_conflicts": [
+            "venue",
+            "catering",
+            "activity"
+          ],
+          "unresolved_uncertainties": [],
+          "reasons": [
+            "A hard specialist rejection blocks the candidate."
+          ],
+          "global_score": 1580.0,
+          "coordination_steps": [
+            "specialist:venue:ACCEPT",
+            "specialist:catering:ACCEPT",
+            "specialist:accessibility:ACCEPT",
+            "specialist:scheduling:REJECT",
+            "specialist:budget:ACCEPT"
+          ]
+        },
+        "specialist_decisions": [
+          {
+            "specialist_id": "venue",
+            "domain": "venue",
+            "recommendation": "accept venue-boston-evening-hall",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "venue",
+              "location",
+              "capacity"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap43-venue-access",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap43-venue-access",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-evening-hall",
+                    "source_version": "1.2",
+                    "effective_date": "2026-12-15",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap43-setup-window",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap43-setup-window",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-evening-hall",
+                    "source_version": "1.3",
+                    "effective_date": "2026-12-15",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "The venue must be compatible with the chosen caterer and activity."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 1,
+            "recommended_resource_ids": [
+              "venue-boston-evening-hall"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Venue specialist evaluates location, accessibility, and venue-specific policies."
+            ]
+          },
+          {
+            "specialist_id": "catering",
+            "domain": "catering_safety",
+            "recommendation": "accept caterer-boston-buffet",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "dietary_safety",
+              "catering_compatibility",
+              "budget"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap43-caterer-setup",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap43-caterer-setup",
+                    "source_chunk_id": null,
+                    "resource_id": "caterer-boston-buffet",
+                    "source_version": "1.1",
+                    "effective_date": "2026-12-15",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "The caterer must satisfy requested dietary and venue rules."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 2,
+            "recommended_resource_ids": [
+              "caterer-boston-buffet"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Catering specialist evaluates food safety and venue-policy compatibility."
+            ]
+          },
+          {
+            "specialist_id": "accessibility",
+            "domain": "accessibility",
+            "recommendation": "accept venue-boston-evening-hall",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "accessibility",
+              "room",
+              "path",
+              "restroom"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap43-venue-access",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap43-venue-access",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-evening-hall",
+                    "source_version": "1.2",
+                    "effective_date": "2026-12-15",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap43-setup-window",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap43-setup-window",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-evening-hall",
+                    "source_version": "1.3",
+                    "effective_date": "2026-12-15",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "Accessibility is enforced against the venue and relevant room/path."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 3,
+            "recommended_resource_ids": [
+              "venue-boston-evening-hall"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Accessibility specialist checks venue-level and room-level evidence."
+            ]
+          },
+          {
+            "specialist_id": "scheduling",
+            "domain": "scheduling_operations",
+            "recommendation": "reject venue-boston-evening-hall",
+            "status": "REJECT",
+            "hard_constraints_considered": [
+              "schedule",
+              "setup",
+              "delivery",
+              "dependency_chain"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap43-venue-access",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap43-venue-access",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-evening-hall",
+                    "source_version": "1.2",
+                    "effective_date": "2026-12-15",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap43-setup-window",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap43-setup-window",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-evening-hall",
+                    "source_version": "1.3",
+                    "effective_date": "2026-12-15",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap43-caterer-setup",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap43-caterer-setup",
+                    "source_chunk_id": null,
+                    "resource_id": "caterer-boston-buffet",
+                    "source_version": "1.1",
+                    "effective_date": "2026-12-15",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap43-activity-setup-window",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap43-activity-setup-window",
+                    "source_chunk_id": null,
+                    "resource_id": "activity-craft-party",
+                    "source_version": "1.0",
+                    "effective_date": "2026-12-15",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "The schedule must remain valid across all selected resources."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 0.0,
+            "local_rank": 4,
+            "recommended_resource_ids": [
+              "venue-boston-evening-hall",
+              "activity-craft-party"
+            ],
+            "reasons_for_rejection": [
+              "Setup windows do not fit the available schedule."
+            ],
+            "dependency_decision_ids": [
+              "venue",
+              "catering",
+              "activity"
+            ],
+            "notes": [
+              "Scheduling specialist checks dependencies across venue, catering, and activity."
+            ]
+          },
+          {
+            "specialist_id": "budget",
+            "domain": "budget",
+            "recommendation": "Choose the least-cost viable combination.",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "budget",
+              "fees",
+              "total_cost"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "Budget checks use parsed explicit fee text when available."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 5,
+            "recommended_resource_ids": [
+              "venue-boston-evening-hall",
+              "caterer-boston-buffet",
+              "activity-craft-party"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Budget specialist compares total cost against the request budget."
+            ]
+          }
+        ],
+        "notes": [
+          "Minimal specialist coordination with explicit arbitration."
+        ],
+        "failure_stage": null
+      },
+      "disagreement_present": false,
+      "notes": [
+        "Sequential venue, caterer, and activity setup windows interact"
+      ]
+    },
+    {
+      "scenario_id": "cap-boundary-44-loading-bay-conflict",
+      "title": "Loading-bay conflict",
+      "description": "Delivery timing misses the venue loading-bay window.",
+      "capability_tags": [
+        "cross_domain",
+        "loading_bay",
+        "logistics_conflict"
+      ],
+      "requires_evidence": true,
+      "requires_global_optimum": false,
+      "expected_feasibility": "NO_FEASIBLE_PLAN",
+      "baseline": {
+        "architecture": "v0.3_stateful_single_planner",
+        "feasibility_outcome": "NO_FEASIBLE_PLAN",
+        "selected_resource_ids": [],
+        "total_cost": null,
+        "latency_ms": 0.004917004844173789,
+        "hard_constraint_validity": false,
+        "cross_domain_compatibility": false,
+        "evidence_grounded_arbitration": false,
+        "global_optimum": null,
+        "human_review_calibrated": null,
+        "disagreement_resolved_correctly": false,
+        "disagreement_resolved_incorrectly": false,
+        "specialist_call_count": 0,
+        "coordination_overhead_count": 0,
+        "arbitration": null,
+        "specialist_decisions": [],
+        "notes": [
+          "Baseline path uses only structured filtering and cost ranking."
+        ],
+        "failure_stage": null
+      },
+      "coordinated": {
+        "architecture": "minimal_specialist_coordination",
+        "feasibility_outcome": "NO_FEASIBLE_PLAN",
+        "selected_resource_ids": [
+          "venue-brooklyn-terrace",
+          "caterer-brooklyn-hosted"
+        ],
+        "total_cost": 780.0,
+        "latency_ms": 0.058541991165839136,
+        "hard_constraint_validity": false,
+        "cross_domain_compatibility": false,
+        "evidence_grounded_arbitration": true,
+        "global_optimum": null,
+        "human_review_calibrated": null,
+        "disagreement_resolved_correctly": false,
+        "disagreement_resolved_incorrectly": false,
+        "specialist_call_count": 5,
+        "coordination_overhead_count": 5,
+        "arbitration": {
+          "outcome": "REJECT",
+          "feasibility_outcome": "NO_FEASIBLE_PLAN",
+          "selected_resource_ids": [
+            "venue-brooklyn-terrace",
+            "caterer-brooklyn-hosted"
+          ],
+          "accepted_specialist_ids": [
+            "venue",
+            "catering",
+            "accessibility",
+            "budget"
+          ],
+          "rejected_specialist_ids": [
+            "scheduling"
+          ],
+          "overridden_specialist_ids": [
+            "venue",
+            "catering",
+            "accessibility",
+            "budget"
+          ],
+          "controlling_evidence_ids": [
+            "doc-cap44-loading-bay-window",
+            "doc-cap44-caterer-delivery-window"
+          ],
+          "dependency_conflicts": [
+            "venue",
+            "catering"
+          ],
+          "unresolved_uncertainties": [],
+          "reasons": [
+            "A hard specialist rejection blocks the candidate."
+          ],
+          "global_score": 780.0,
+          "coordination_steps": [
+            "specialist:venue:ACCEPT",
+            "specialist:catering:ACCEPT",
+            "specialist:accessibility:ACCEPT",
+            "specialist:scheduling:REJECT",
+            "specialist:budget:ACCEPT"
+          ]
+        },
+        "specialist_decisions": [
+          {
+            "specialist_id": "venue",
+            "domain": "venue",
+            "recommendation": "accept venue-brooklyn-terrace",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "venue",
+              "location",
+              "capacity"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap44-loading-bay-window",
+                "state": "SUPPORTED",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap44-loading-bay-window",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-brooklyn-terrace",
+                    "source_version": "2.0",
+                    "effective_date": "2026-12-20",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "The venue must be compatible with the chosen caterer and activity."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 1,
+            "recommended_resource_ids": [
+              "venue-brooklyn-terrace"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Venue specialist evaluates location, accessibility, and venue-specific policies."
+            ]
+          },
+          {
+            "specialist_id": "catering",
+            "domain": "catering_safety",
+            "recommendation": "accept caterer-brooklyn-hosted",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "dietary_safety",
+              "catering_compatibility",
+              "budget"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap44-caterer-delivery-window",
+                "state": "CONFLICTED",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap44-caterer-delivery-window",
+                    "source_chunk_id": null,
+                    "resource_id": "caterer-brooklyn-hosted",
+                    "source_version": "1.0",
+                    "effective_date": "2026-12-20",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "The caterer must satisfy requested dietary and venue rules."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 2,
+            "recommended_resource_ids": [
+              "caterer-brooklyn-hosted"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Catering specialist evaluates food safety and venue-policy compatibility."
+            ]
+          },
+          {
+            "specialist_id": "accessibility",
+            "domain": "accessibility",
+            "recommendation": "accept venue-brooklyn-terrace",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "accessibility",
+              "room",
+              "path",
+              "restroom"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap44-loading-bay-window",
+                "state": "SUPPORTED",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap44-loading-bay-window",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-brooklyn-terrace",
+                    "source_version": "2.0",
+                    "effective_date": "2026-12-20",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "Accessibility is enforced against the venue and relevant room/path."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 3,
+            "recommended_resource_ids": [
+              "venue-brooklyn-terrace"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Accessibility specialist checks venue-level and room-level evidence."
+            ]
+          },
+          {
+            "specialist_id": "scheduling",
+            "domain": "scheduling_operations",
+            "recommendation": "reject venue-brooklyn-terrace",
+            "status": "REJECT",
+            "hard_constraints_considered": [
+              "schedule",
+              "setup",
+              "delivery",
+              "dependency_chain"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap44-loading-bay-window",
+                "state": "SUPPORTED",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap44-loading-bay-window",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-brooklyn-terrace",
+                    "source_version": "2.0",
+                    "effective_date": "2026-12-20",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap44-caterer-delivery-window",
+                "state": "CONFLICTED",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap44-caterer-delivery-window",
+                    "source_chunk_id": null,
+                    "resource_id": "caterer-brooklyn-hosted",
+                    "source_version": "1.0",
+                    "effective_date": "2026-12-20",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "The schedule must remain valid across all selected resources."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 0.0,
+            "local_rank": 4,
+            "recommended_resource_ids": [
+              "venue-brooklyn-terrace"
+            ],
+            "reasons_for_rejection": [
+              "Delivery timing conflicts with the loading-bay window."
+            ],
+            "dependency_decision_ids": [
+              "venue",
+              "catering"
+            ],
+            "notes": [
+              "Scheduling specialist checks dependencies across venue, catering, and activity."
+            ]
+          },
+          {
+            "specialist_id": "budget",
+            "domain": "budget",
+            "recommendation": "Choose the least-cost viable combination.",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "budget",
+              "fees",
+              "total_cost"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "Budget checks use parsed explicit fee text when available."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 5,
+            "recommended_resource_ids": [
+              "venue-brooklyn-terrace",
+              "caterer-brooklyn-hosted"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Budget specialist compares total cost against the request budget."
+            ]
+          }
+        ],
+        "notes": [
+          "Minimal specialist coordination with explicit arbitration."
+        ],
+        "failure_stage": null
+      },
+      "disagreement_present": false,
+      "notes": [
+        "Delivery timing and loading-bay access conflict"
+      ]
+    },
+    {
+      "scenario_id": "cap-boundary-45-outdoor-rain-contingency",
+      "title": "Outdoor rain contingency",
+      "description": "A rain contingency exists but is not a guaranteed commitment.",
+      "capability_tags": [
+        "temporal_dependency",
+        "contingency",
+        "replanning"
+      ],
+      "requires_evidence": true,
+      "requires_global_optimum": false,
+      "expected_feasibility": "HUMAN_REVIEW_REQUIRED",
+      "baseline": {
+        "architecture": "v0.3_stateful_single_planner",
+        "feasibility_outcome": "NO_FEASIBLE_PLAN",
+        "selected_resource_ids": [],
+        "total_cost": null,
+        "latency_ms": 0.004582994733937085,
+        "hard_constraint_validity": false,
+        "cross_domain_compatibility": false,
+        "evidence_grounded_arbitration": false,
+        "global_optimum": null,
+        "human_review_calibrated": false,
+        "disagreement_resolved_correctly": false,
+        "disagreement_resolved_incorrectly": false,
+        "specialist_call_count": 0,
+        "coordination_overhead_count": 0,
+        "arbitration": null,
+        "specialist_decisions": [],
+        "notes": [
+          "Baseline path uses only structured filtering and cost ranking."
+        ],
+        "failure_stage": "hard_constraints"
+      },
+      "coordinated": {
+        "architecture": "minimal_specialist_coordination",
+        "feasibility_outcome": "HUMAN_REVIEW_REQUIRED",
+        "selected_resource_ids": [
+          "venue-cambridge-garden"
+        ],
+        "total_cost": 180.0,
+        "latency_ms": 0.06387500616256148,
+        "hard_constraint_validity": false,
+        "cross_domain_compatibility": true,
+        "evidence_grounded_arbitration": true,
+        "global_optimum": null,
+        "human_review_calibrated": true,
+        "disagreement_resolved_correctly": false,
+        "disagreement_resolved_incorrectly": false,
+        "specialist_call_count": 5,
+        "coordination_overhead_count": 5,
+        "arbitration": {
+          "outcome": "HUMAN_REVIEW_REQUIRED",
+          "feasibility_outcome": "HUMAN_REVIEW_REQUIRED",
+          "selected_resource_ids": [
+            "venue-cambridge-garden"
+          ],
+          "accepted_specialist_ids": [
+            "catering",
+            "accessibility",
+            "budget"
+          ],
+          "rejected_specialist_ids": [],
+          "overridden_specialist_ids": [
+            "catering",
+            "accessibility",
+            "budget"
+          ],
+          "controlling_evidence_ids": [
+            "doc-cap45-outdoor-policy",
+            "doc-cap45-rain-contingency"
+          ],
+          "dependency_conflicts": [],
+          "unresolved_uncertainties": [
+            "Contingency is not guaranteed.",
+            "Rain contingency is not guaranteed."
+          ],
+          "reasons": [
+            "Evidence conflict or uncertainty requires review."
+          ],
+          "global_score": 180.0,
+          "coordination_steps": [
+            "specialist:venue:HUMAN_REVIEW_REQUIRED",
+            "specialist:catering:ACCEPT",
+            "specialist:accessibility:ACCEPT",
+            "specialist:scheduling:HUMAN_REVIEW_REQUIRED",
+            "specialist:budget:ACCEPT"
+          ]
+        },
+        "specialist_decisions": [
+          {
+            "specialist_id": "venue",
+            "domain": "venue",
+            "recommendation": "human_review_required venue-cambridge-garden",
+            "status": "HUMAN_REVIEW_REQUIRED",
+            "hard_constraints_considered": [
+              "venue",
+              "location",
+              "capacity"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap45-outdoor-policy",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap45-outdoor-policy",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-cambridge-garden",
+                    "source_version": "1.1",
+                    "effective_date": "2026-12-18",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap45-rain-contingency",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap45-rain-contingency",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-cambridge-garden",
+                    "source_version": "1.2",
+                    "effective_date": "2026-12-18",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "The venue must be compatible with the chosen caterer and activity."
+            ],
+            "unresolved_uncertainties": [
+              "Contingency is not guaranteed."
+            ],
+            "local_score": 0.0,
+            "local_rank": 1,
+            "recommended_resource_ids": [
+              "venue-cambridge-garden"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Venue specialist evaluates location, accessibility, and venue-specific policies."
+            ]
+          },
+          {
+            "specialist_id": "catering",
+            "domain": "catering_safety",
+            "recommendation": "accept none",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "dietary_safety",
+              "catering_compatibility",
+              "budget"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "The caterer must satisfy requested dietary and venue rules."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 2,
+            "recommended_resource_ids": [],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Catering specialist evaluates food safety and venue-policy compatibility."
+            ]
+          },
+          {
+            "specialist_id": "accessibility",
+            "domain": "accessibility",
+            "recommendation": "accept venue-cambridge-garden",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "accessibility",
+              "room",
+              "path",
+              "restroom"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap45-outdoor-policy",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap45-outdoor-policy",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-cambridge-garden",
+                    "source_version": "1.1",
+                    "effective_date": "2026-12-18",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap45-rain-contingency",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap45-rain-contingency",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-cambridge-garden",
+                    "source_version": "1.2",
+                    "effective_date": "2026-12-18",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "Accessibility is enforced against the venue and relevant room/path."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 3,
+            "recommended_resource_ids": [
+              "venue-cambridge-garden"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Accessibility specialist checks venue-level and room-level evidence."
+            ]
+          },
+          {
+            "specialist_id": "scheduling",
+            "domain": "scheduling_operations",
+            "recommendation": "human_review_required venue-cambridge-garden",
+            "status": "HUMAN_REVIEW_REQUIRED",
+            "hard_constraints_considered": [
+              "schedule",
+              "setup",
+              "delivery",
+              "dependency_chain"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap45-outdoor-policy",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap45-outdoor-policy",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-cambridge-garden",
+                    "source_version": "1.1",
+                    "effective_date": "2026-12-18",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap45-rain-contingency",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap45-rain-contingency",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-cambridge-garden",
+                    "source_version": "1.2",
+                    "effective_date": "2026-12-18",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "The schedule must remain valid across all selected resources."
+            ],
+            "unresolved_uncertainties": [
+              "Rain contingency is not guaranteed."
+            ],
+            "local_score": 0.0,
+            "local_rank": 4,
+            "recommended_resource_ids": [
+              "venue-cambridge-garden"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Scheduling specialist checks dependencies across venue, catering, and activity."
+            ]
+          },
+          {
+            "specialist_id": "budget",
+            "domain": "budget",
+            "recommendation": "Choose the least-cost viable combination.",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "budget",
+              "fees",
+              "total_cost"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "Budget checks use parsed explicit fee text when available."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 5,
+            "recommended_resource_ids": [
+              "venue-cambridge-garden"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Budget specialist compares total cost against the request budget."
+            ]
+          }
+        ],
+        "notes": [
+          "Minimal specialist coordination with explicit arbitration."
+        ],
+        "failure_stage": null
+      },
+      "disagreement_present": false,
+      "notes": [
+        "Outdoor planning depends on a non-guaranteed contingency"
+      ]
+    },
+    {
+      "scenario_id": "cap-boundary-47-specialist-disagreement",
+      "title": "Specialist disagreement",
+      "description": "Two specialist viewpoints disagree about a quiet-space request.",
+      "capability_tags": [
+        "arbitration",
+        "cross_domain",
+        "conflict"
+      ],
+      "requires_evidence": true,
+      "requires_global_optimum": false,
+      "expected_feasibility": "HUMAN_REVIEW_REQUIRED",
+      "baseline": {
+        "architecture": "v0.3_stateful_single_planner",
+        "feasibility_outcome": "FEASIBLE",
+        "selected_resource_ids": [
+          "venue-boston-garden"
+        ],
+        "total_cost": 500.0,
+        "latency_ms": 0.007791997632011771,
+        "hard_constraint_validity": true,
+        "cross_domain_compatibility": true,
+        "evidence_grounded_arbitration": false,
+        "global_optimum": true,
+        "human_review_calibrated": false,
+        "disagreement_resolved_correctly": false,
+        "disagreement_resolved_incorrectly": true,
+        "specialist_call_count": 0,
+        "coordination_overhead_count": 0,
+        "arbitration": null,
+        "specialist_decisions": [],
+        "notes": [
+          "Baseline path uses only structured filtering and cost ranking."
+        ],
+        "failure_stage": "evidence_authority"
+      },
+      "coordinated": {
+        "architecture": "minimal_specialist_coordination",
+        "feasibility_outcome": "HUMAN_REVIEW_REQUIRED",
+        "selected_resource_ids": [
+          "venue-boston-garden"
+        ],
+        "total_cost": 500.0,
+        "latency_ms": 0.08966699533630162,
+        "hard_constraint_validity": true,
+        "cross_domain_compatibility": true,
+        "evidence_grounded_arbitration": true,
+        "global_optimum": true,
+        "human_review_calibrated": true,
+        "disagreement_resolved_correctly": true,
+        "disagreement_resolved_incorrectly": false,
+        "specialist_call_count": 5,
+        "coordination_overhead_count": 5,
+        "arbitration": {
+          "outcome": "HUMAN_REVIEW_REQUIRED",
+          "feasibility_outcome": "HUMAN_REVIEW_REQUIRED",
+          "selected_resource_ids": [
+            "venue-boston-garden"
+          ],
+          "accepted_specialist_ids": [
+            "venue",
+            "catering",
+            "scheduling",
+            "budget"
+          ],
+          "rejected_specialist_ids": [],
+          "overridden_specialist_ids": [
+            "venue",
+            "catering",
+            "scheduling",
+            "budget"
+          ],
+          "controlling_evidence_ids": [
+            "doc-cap47-specialist-support",
+            "doc-cap47-specialist-objection"
+          ],
+          "dependency_conflicts": [],
+          "unresolved_uncertainties": [
+            "Specialists disagree on accessibility suitability."
+          ],
+          "reasons": [
+            "Evidence conflict or uncertainty requires review."
+          ],
+          "global_score": 500.0,
+          "coordination_steps": [
+            "specialist:venue:ACCEPT",
+            "specialist:catering:ACCEPT",
+            "specialist:accessibility:HUMAN_REVIEW_REQUIRED",
+            "specialist:scheduling:ACCEPT",
+            "specialist:budget:ACCEPT"
+          ]
+        },
+        "specialist_decisions": [
+          {
+            "specialist_id": "venue",
+            "domain": "venue",
+            "recommendation": "accept venue-boston-garden",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "venue",
+              "location",
+              "capacity"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap47-specialist-support",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap47-specialist-support",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-garden",
+                    "source_version": "1.0",
+                    "effective_date": "2026-12-22",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap47-specialist-objection",
+                "state": "CONFLICTED",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap47-specialist-objection",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-garden",
+                    "source_version": "1.1",
+                    "effective_date": "2026-12-22",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "The venue must be compatible with the chosen caterer and activity."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 1,
+            "recommended_resource_ids": [
+              "venue-boston-garden"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Venue specialist evaluates location, accessibility, and venue-specific policies."
+            ]
+          },
+          {
+            "specialist_id": "catering",
+            "domain": "catering_safety",
+            "recommendation": "accept none",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "dietary_safety",
+              "catering_compatibility",
+              "budget"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "The caterer must satisfy requested dietary and venue rules."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 2,
+            "recommended_resource_ids": [],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Catering specialist evaluates food safety and venue-policy compatibility."
+            ]
+          },
+          {
+            "specialist_id": "accessibility",
+            "domain": "accessibility",
+            "recommendation": "human_review_required venue-boston-garden",
+            "status": "HUMAN_REVIEW_REQUIRED",
+            "hard_constraints_considered": [
+              "accessibility",
+              "room",
+              "path",
+              "restroom"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap47-specialist-support",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap47-specialist-support",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-garden",
+                    "source_version": "1.0",
+                    "effective_date": "2026-12-22",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap47-specialist-objection",
+                "state": "CONFLICTED",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap47-specialist-objection",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-garden",
+                    "source_version": "1.1",
+                    "effective_date": "2026-12-22",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "Accessibility is enforced against the venue and relevant room/path."
+            ],
+            "unresolved_uncertainties": [
+              "Specialists disagree on accessibility suitability."
+            ],
+            "local_score": 0.0,
+            "local_rank": 3,
+            "recommended_resource_ids": [
+              "venue-boston-garden"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Accessibility specialist checks venue-level and room-level evidence."
+            ]
+          },
+          {
+            "specialist_id": "scheduling",
+            "domain": "scheduling_operations",
+            "recommendation": "accept venue-boston-garden",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "schedule",
+              "setup",
+              "delivery",
+              "dependency_chain"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap47-specialist-support",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap47-specialist-support",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-garden",
+                    "source_version": "1.0",
+                    "effective_date": "2026-12-22",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap47-specialist-objection",
+                "state": "CONFLICTED",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap47-specialist-objection",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-garden",
+                    "source_version": "1.1",
+                    "effective_date": "2026-12-22",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "The schedule must remain valid across all selected resources."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 4,
+            "recommended_resource_ids": [
+              "venue-boston-garden"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Scheduling specialist checks dependencies across venue, catering, and activity."
+            ]
+          },
+          {
+            "specialist_id": "budget",
+            "domain": "budget",
+            "recommendation": "Choose the least-cost viable combination.",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "budget",
+              "fees",
+              "total_cost"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "Budget checks use parsed explicit fee text when available."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 5,
+            "recommended_resource_ids": [
+              "venue-boston-garden"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Budget specialist compares total cost against the request budget."
+            ]
+          }
+        ],
+        "notes": [
+          "Minimal specialist coordination with explicit arbitration."
+        ],
+        "failure_stage": null
+      },
+      "disagreement_present": true,
+      "notes": [
+        "Specialist disagreement should not be collapsed into a single answer"
+      ]
+    },
+    {
+      "scenario_id": "cap-boundary-48-local-vs-global-optimum",
+      "title": "Local versus global optimum",
+      "description": "The cheapest headline venue is not the cheapest total combination.",
+      "capability_tags": [
+        "global_optimization",
+        "cross_domain",
+        "budget_tradeoff"
+      ],
+      "requires_evidence": true,
+      "requires_global_optimum": true,
+      "expected_feasibility": "FEASIBLE",
+      "baseline": {
+        "architecture": "v0.3_stateful_single_planner",
+        "feasibility_outcome": "FEASIBLE",
+        "selected_resource_ids": [
+          "venue-brooklyn-loft",
+          "caterer-family-table"
+        ],
+        "total_cost": 968.0,
+        "latency_ms": 0.011625001206994057,
+        "hard_constraint_validity": true,
+        "cross_domain_compatibility": true,
+        "evidence_grounded_arbitration": false,
+        "global_optimum": true,
+        "human_review_calibrated": null,
+        "disagreement_resolved_correctly": false,
+        "disagreement_resolved_incorrectly": false,
+        "specialist_call_count": 0,
+        "coordination_overhead_count": 0,
+        "arbitration": null,
+        "specialist_decisions": [],
+        "notes": [
+          "Baseline path uses only structured filtering and cost ranking."
+        ],
+        "failure_stage": null
+      },
+      "coordinated": {
+        "architecture": "minimal_specialist_coordination",
+        "feasibility_outcome": "FEASIBLE",
+        "selected_resource_ids": [
+          "venue-brooklyn-loft",
+          "caterer-family-table"
+        ],
+        "total_cost": 1936.0,
+        "latency_ms": 0.13033300638198853,
+        "hard_constraint_validity": true,
+        "cross_domain_compatibility": true,
+        "evidence_grounded_arbitration": true,
+        "global_optimum": true,
+        "human_review_calibrated": null,
+        "disagreement_resolved_correctly": false,
+        "disagreement_resolved_incorrectly": false,
+        "specialist_call_count": 5,
+        "coordination_overhead_count": 10,
+        "arbitration": {
+          "outcome": "ACCEPT",
+          "feasibility_outcome": "FEASIBLE",
+          "selected_resource_ids": [
+            "venue-brooklyn-loft",
+            "caterer-family-table"
+          ],
+          "accepted_specialist_ids": [
+            "venue",
+            "catering",
+            "accessibility",
+            "scheduling",
+            "budget"
+          ],
+          "rejected_specialist_ids": [],
+          "overridden_specialist_ids": [],
+          "controlling_evidence_ids": [
+            "doc-cap48-expensive-venue",
+            "doc-cap48-global-cost-note",
+            "doc-cap48-cheap-caterer"
+          ],
+          "dependency_conflicts": [],
+          "unresolved_uncertainties": [],
+          "reasons": [
+            "All specialists accepted the candidate."
+          ],
+          "global_score": 1936.0,
+          "coordination_steps": [
+            "specialist:venue:ACCEPT",
+            "specialist:catering:ACCEPT",
+            "specialist:accessibility:ACCEPT",
+            "specialist:scheduling:ACCEPT",
+            "specialist:budget:ACCEPT"
+          ]
+        },
+        "specialist_decisions": [
+          {
+            "specialist_id": "venue",
+            "domain": "venue",
+            "recommendation": "accept venue-brooklyn-loft",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "venue",
+              "location",
+              "capacity"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap48-expensive-venue",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap48-expensive-venue",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-brooklyn-loft",
+                    "source_version": "4.0",
+                    "effective_date": "2026-12-28",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap48-global-cost-note",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap48-global-cost-note",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-brooklyn-loft",
+                    "source_version": "4.1",
+                    "effective_date": "2026-12-28",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "The venue must be compatible with the chosen caterer and activity."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 1,
+            "recommended_resource_ids": [
+              "venue-brooklyn-loft"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Venue specialist evaluates location, accessibility, and venue-specific policies."
+            ]
+          },
+          {
+            "specialist_id": "catering",
+            "domain": "catering_safety",
+            "recommendation": "accept caterer-family-table",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "dietary_safety",
+              "catering_compatibility",
+              "budget"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap48-cheap-caterer",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap48-cheap-caterer",
+                    "source_chunk_id": null,
+                    "resource_id": "caterer-family-table",
+                    "source_version": "3.0",
+                    "effective_date": "2026-12-28",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "The caterer must satisfy requested dietary and venue rules."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 2,
+            "recommended_resource_ids": [
+              "caterer-family-table"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Catering specialist evaluates food safety and venue-policy compatibility."
+            ]
+          },
+          {
+            "specialist_id": "accessibility",
+            "domain": "accessibility",
+            "recommendation": "accept venue-brooklyn-loft",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "accessibility",
+              "room",
+              "path",
+              "restroom"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap48-expensive-venue",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap48-expensive-venue",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-brooklyn-loft",
+                    "source_version": "4.0",
+                    "effective_date": "2026-12-28",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap48-global-cost-note",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap48-global-cost-note",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-brooklyn-loft",
+                    "source_version": "4.1",
+                    "effective_date": "2026-12-28",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "Accessibility is enforced against the venue and relevant room/path."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 3,
+            "recommended_resource_ids": [
+              "venue-brooklyn-loft"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Accessibility specialist checks venue-level and room-level evidence."
+            ]
+          },
+          {
+            "specialist_id": "scheduling",
+            "domain": "scheduling_operations",
+            "recommendation": "accept venue-brooklyn-loft",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "schedule",
+              "setup",
+              "delivery",
+              "dependency_chain"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap48-expensive-venue",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap48-expensive-venue",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-brooklyn-loft",
+                    "source_version": "4.0",
+                    "effective_date": "2026-12-28",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap48-global-cost-note",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap48-global-cost-note",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-brooklyn-loft",
+                    "source_version": "4.1",
+                    "effective_date": "2026-12-28",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap48-cheap-caterer",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap48-cheap-caterer",
+                    "source_chunk_id": null,
+                    "resource_id": "caterer-family-table",
+                    "source_version": "3.0",
+                    "effective_date": "2026-12-28",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "The schedule must remain valid across all selected resources."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 4,
+            "recommended_resource_ids": [
+              "venue-brooklyn-loft"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Scheduling specialist checks dependencies across venue, catering, and activity."
+            ]
+          },
+          {
+            "specialist_id": "budget",
+            "domain": "budget",
+            "recommendation": "Choose the least-cost viable combination.",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "budget",
+              "fees",
+              "total_cost"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "Budget checks use parsed explicit fee text when available."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 5,
+            "recommended_resource_ids": [
+              "venue-brooklyn-loft",
+              "caterer-family-table"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Budget specialist compares total cost against the request budget."
+            ]
+          }
+        ],
+        "notes": [
+          "Minimal specialist coordination with explicit arbitration."
+        ],
+        "failure_stage": null
+      },
+      "disagreement_present": false,
+      "notes": [
+        "Global optimization should beat a locally cheapest venue choice"
+      ]
+    },
+    {
+      "scenario_id": "cap-boundary-59-conflicting-agents-evidence",
+      "title": "Conflicting agents and evidence",
+      "description": "Recommendation tone conflicts with a stricter accessibility review.",
+      "capability_tags": [
+        "arbitration",
+        "cross_domain",
+        "conflict"
+      ],
+      "requires_evidence": true,
+      "requires_global_optimum": false,
+      "expected_feasibility": "HUMAN_REVIEW_REQUIRED",
+      "baseline": {
+        "architecture": "v0.3_stateful_single_planner",
+        "feasibility_outcome": "FEASIBLE",
+        "selected_resource_ids": [
+          "venue-boston-garden"
+        ],
+        "total_cost": 500.0,
+        "latency_ms": 0.005875001079402864,
+        "hard_constraint_validity": true,
+        "cross_domain_compatibility": true,
+        "evidence_grounded_arbitration": false,
+        "global_optimum": true,
+        "human_review_calibrated": false,
+        "disagreement_resolved_correctly": false,
+        "disagreement_resolved_incorrectly": true,
+        "specialist_call_count": 0,
+        "coordination_overhead_count": 0,
+        "arbitration": null,
+        "specialist_decisions": [],
+        "notes": [
+          "Baseline path uses only structured filtering and cost ranking."
+        ],
+        "failure_stage": "evidence_authority"
+      },
+      "coordinated": {
+        "architecture": "minimal_specialist_coordination",
+        "feasibility_outcome": "HUMAN_REVIEW_REQUIRED",
+        "selected_resource_ids": [
+          "venue-boston-garden"
+        ],
+        "total_cost": 500.0,
+        "latency_ms": 0.060000005760230124,
+        "hard_constraint_validity": true,
+        "cross_domain_compatibility": true,
+        "evidence_grounded_arbitration": true,
+        "global_optimum": true,
+        "human_review_calibrated": true,
+        "disagreement_resolved_correctly": true,
+        "disagreement_resolved_incorrectly": false,
+        "specialist_call_count": 5,
+        "coordination_overhead_count": 5,
+        "arbitration": {
+          "outcome": "HUMAN_REVIEW_REQUIRED",
+          "feasibility_outcome": "HUMAN_REVIEW_REQUIRED",
+          "selected_resource_ids": [
+            "venue-boston-garden"
+          ],
+          "accepted_specialist_ids": [
+            "catering",
+            "scheduling",
+            "budget"
+          ],
+          "rejected_specialist_ids": [],
+          "overridden_specialist_ids": [
+            "catering",
+            "scheduling",
+            "budget"
+          ],
+          "controlling_evidence_ids": [
+            "doc-cap59-recommendation-note",
+            "doc-cap59-accessibility-analysis"
+          ],
+          "dependency_conflicts": [],
+          "unresolved_uncertainties": [
+            "Venue evidence is conflicting.",
+            "Specialists disagree on accessibility suitability."
+          ],
+          "reasons": [
+            "Evidence conflict or uncertainty requires review."
+          ],
+          "global_score": 500.0,
+          "coordination_steps": [
+            "specialist:venue:HUMAN_REVIEW_REQUIRED",
+            "specialist:catering:ACCEPT",
+            "specialist:accessibility:HUMAN_REVIEW_REQUIRED",
+            "specialist:scheduling:ACCEPT",
+            "specialist:budget:ACCEPT"
+          ]
+        },
+        "specialist_decisions": [
+          {
+            "specialist_id": "venue",
+            "domain": "venue",
+            "recommendation": "human_review_required venue-boston-garden",
+            "status": "HUMAN_REVIEW_REQUIRED",
+            "hard_constraints_considered": [
+              "venue",
+              "location",
+              "capacity"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap59-recommendation-note",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap59-recommendation-note",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-garden",
+                    "source_version": "1.1",
+                    "effective_date": "2026-12-29",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap59-accessibility-analysis",
+                "state": "CONFLICTED",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap59-accessibility-analysis",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-garden",
+                    "source_version": "1.2",
+                    "effective_date": "2026-12-29",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "The venue must be compatible with the chosen caterer and activity."
+            ],
+            "unresolved_uncertainties": [
+              "Venue evidence is conflicting."
+            ],
+            "local_score": 0.0,
+            "local_rank": 1,
+            "recommended_resource_ids": [
+              "venue-boston-garden"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Venue specialist evaluates location, accessibility, and venue-specific policies."
+            ]
+          },
+          {
+            "specialist_id": "catering",
+            "domain": "catering_safety",
+            "recommendation": "accept none",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "dietary_safety",
+              "catering_compatibility",
+              "budget"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "The caterer must satisfy requested dietary and venue rules."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 2,
+            "recommended_resource_ids": [],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Catering specialist evaluates food safety and venue-policy compatibility."
+            ]
+          },
+          {
+            "specialist_id": "accessibility",
+            "domain": "accessibility",
+            "recommendation": "human_review_required venue-boston-garden",
+            "status": "HUMAN_REVIEW_REQUIRED",
+            "hard_constraints_considered": [
+              "accessibility",
+              "room",
+              "path",
+              "restroom"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap59-recommendation-note",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap59-recommendation-note",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-garden",
+                    "source_version": "1.1",
+                    "effective_date": "2026-12-29",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap59-accessibility-analysis",
+                "state": "CONFLICTED",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap59-accessibility-analysis",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-garden",
+                    "source_version": "1.2",
+                    "effective_date": "2026-12-29",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "Accessibility is enforced against the venue and relevant room/path."
+            ],
+            "unresolved_uncertainties": [
+              "Specialists disagree on accessibility suitability."
+            ],
+            "local_score": 0.0,
+            "local_rank": 3,
+            "recommended_resource_ids": [
+              "venue-boston-garden"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Accessibility specialist checks venue-level and room-level evidence."
+            ]
+          },
+          {
+            "specialist_id": "scheduling",
+            "domain": "scheduling_operations",
+            "recommendation": "accept venue-boston-garden",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "schedule",
+              "setup",
+              "delivery",
+              "dependency_chain"
+            ],
+            "evidence_references": [
+              {
+                "evidence_id": "doc-cap59-recommendation-note",
+                "state": "INSUFFICIENT_EVIDENCE",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap59-recommendation-note",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-garden",
+                    "source_version": "1.1",
+                    "effective_date": "2026-12-29",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              },
+              {
+                "evidence_id": "doc-cap59-accessibility-analysis",
+                "state": "CONFLICTED",
+                "provenance": [
+                  {
+                    "source_document_id": "doc-cap59-accessibility-analysis",
+                    "source_chunk_id": null,
+                    "resource_id": "venue-boston-garden",
+                    "source_version": "1.2",
+                    "effective_date": "2026-12-29",
+                    "derivation_method": "deterministic",
+                    "derivation_explanation": "Derived from deterministic benchmark evidence text."
+                  }
+                ]
+              }
+            ],
+            "assumptions": [
+              "The schedule must remain valid across all selected resources."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 4,
+            "recommended_resource_ids": [
+              "venue-boston-garden"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Scheduling specialist checks dependencies across venue, catering, and activity."
+            ]
+          },
+          {
+            "specialist_id": "budget",
+            "domain": "budget",
+            "recommendation": "Choose the least-cost viable combination.",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "budget",
+              "fees",
+              "total_cost"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "Budget checks use parsed explicit fee text when available."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 5,
+            "recommended_resource_ids": [
+              "venue-boston-garden"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Budget specialist compares total cost against the request budget."
+            ]
+          }
+        ],
+        "notes": [
+          "Minimal specialist coordination with explicit arbitration."
+        ],
+        "failure_stage": null
+      },
+      "disagreement_present": true,
+      "notes": [
+        "A later arbitration layer would compare recommendation and accessibility analysis"
+      ]
+    },
+    {
+      "scenario_id": "cap-boundary-61-large-but-purely-structured",
+      "title": "Large but purely structured",
+      "description": "A large candidate set remains purely structured and deterministic.",
+      "capability_tags": [
+        "structured_only",
+        "large_candidate_set",
+        "optimization"
+      ],
+      "requires_evidence": false,
+      "requires_global_optimum": false,
+      "expected_feasibility": "FEASIBLE",
+      "baseline": {
+        "architecture": "v0.3_stateful_single_planner",
+        "feasibility_outcome": "FEASIBLE",
+        "selected_resource_ids": [
+          "venue-boston-hall-c",
+          "caterer-boston-a",
+          "activity-boston-structured"
+        ],
+        "total_cost": 938.0,
+        "latency_ms": 0.018874998204410076,
+        "hard_constraint_validity": true,
+        "cross_domain_compatibility": true,
+        "evidence_grounded_arbitration": true,
+        "global_optimum": true,
+        "human_review_calibrated": null,
+        "disagreement_resolved_correctly": false,
+        "disagreement_resolved_incorrectly": false,
+        "specialist_call_count": 0,
+        "coordination_overhead_count": 0,
+        "arbitration": null,
+        "specialist_decisions": [],
+        "notes": [
+          "Baseline path uses only structured filtering and cost ranking."
+        ],
+        "failure_stage": null
+      },
+      "coordinated": {
+        "architecture": "minimal_specialist_coordination",
+        "feasibility_outcome": "FEASIBLE",
+        "selected_resource_ids": [
+          "venue-boston-hall-c",
+          "caterer-boston-a",
+          "activity-boston-structured"
+        ],
+        "total_cost": 938.0,
+        "latency_ms": 0.2431659959256649,
+        "hard_constraint_validity": true,
+        "cross_domain_compatibility": true,
+        "evidence_grounded_arbitration": true,
+        "global_optimum": true,
+        "human_review_calibrated": null,
+        "disagreement_resolved_correctly": false,
+        "disagreement_resolved_incorrectly": false,
+        "specialist_call_count": 5,
+        "coordination_overhead_count": 30,
+        "arbitration": {
+          "outcome": "ACCEPT",
+          "feasibility_outcome": "FEASIBLE",
+          "selected_resource_ids": [
+            "venue-boston-hall-c",
+            "caterer-boston-a",
+            "activity-boston-structured"
+          ],
+          "accepted_specialist_ids": [
+            "venue",
+            "catering",
+            "accessibility",
+            "scheduling",
+            "budget"
+          ],
+          "rejected_specialist_ids": [],
+          "overridden_specialist_ids": [],
+          "controlling_evidence_ids": [],
+          "dependency_conflicts": [],
+          "unresolved_uncertainties": [],
+          "reasons": [
+            "All specialists accepted the candidate."
+          ],
+          "global_score": 938.0,
+          "coordination_steps": [
+            "specialist:venue:ACCEPT",
+            "specialist:catering:ACCEPT",
+            "specialist:accessibility:ACCEPT",
+            "specialist:scheduling:ACCEPT",
+            "specialist:budget:ACCEPT"
+          ]
+        },
+        "specialist_decisions": [
+          {
+            "specialist_id": "venue",
+            "domain": "venue",
+            "recommendation": "accept venue-boston-hall-c",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "venue",
+              "location",
+              "capacity"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "The venue must be compatible with the chosen caterer and activity."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 1,
+            "recommended_resource_ids": [
+              "venue-boston-hall-c"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Venue specialist evaluates location, accessibility, and venue-specific policies."
+            ]
+          },
+          {
+            "specialist_id": "catering",
+            "domain": "catering_safety",
+            "recommendation": "accept caterer-boston-a",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "dietary_safety",
+              "catering_compatibility",
+              "budget"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "The caterer must satisfy requested dietary and venue rules."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 2,
+            "recommended_resource_ids": [
+              "caterer-boston-a"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Catering specialist evaluates food safety and venue-policy compatibility."
+            ]
+          },
+          {
+            "specialist_id": "accessibility",
+            "domain": "accessibility",
+            "recommendation": "accept venue-boston-hall-c",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "accessibility",
+              "room",
+              "path",
+              "restroom"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "Accessibility is enforced against the venue and relevant room/path."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 3,
+            "recommended_resource_ids": [
+              "venue-boston-hall-c"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Accessibility specialist checks venue-level and room-level evidence."
+            ]
+          },
+          {
+            "specialist_id": "scheduling",
+            "domain": "scheduling_operations",
+            "recommendation": "accept venue-boston-hall-c",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "schedule",
+              "setup",
+              "delivery",
+              "dependency_chain"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "The schedule must remain valid across all selected resources."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 4,
+            "recommended_resource_ids": [
+              "venue-boston-hall-c",
+              "activity-boston-structured"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Scheduling specialist checks dependencies across venue, catering, and activity."
+            ]
+          },
+          {
+            "specialist_id": "budget",
+            "domain": "budget",
+            "recommendation": "Choose the least-cost viable combination.",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "budget",
+              "fees",
+              "total_cost"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "Budget checks use parsed explicit fee text when available."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 5,
+            "recommended_resource_ids": [
+              "venue-boston-hall-c",
+              "caterer-boston-a",
+              "activity-boston-structured"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Budget specialist compares total cost against the request budget."
+            ]
+          }
+        ],
+        "notes": [
+          "Minimal specialist coordination with explicit arbitration."
+        ],
+        "failure_stage": null
+      },
+      "disagreement_present": false,
+      "notes": [
+        "Large candidate set but no semantic or agentic uncertainty is required"
+      ]
+    },
+    {
+      "scenario_id": "cap-boundary-65-ten-structured-constraints",
+      "title": "Ten structured constraints",
+      "description": "Many structured constraints do not imply orchestration complexity.",
+      "capability_tags": [
+        "structured_constraints",
+        "many_constraints",
+        "optimization"
+      ],
+      "requires_evidence": false,
+      "requires_global_optimum": false,
+      "expected_feasibility": "FEASIBLE",
+      "baseline": {
+        "architecture": "v0.3_stateful_single_planner",
+        "feasibility_outcome": "FEASIBLE",
+        "selected_resource_ids": [
+          "venue-boston-hall-d",
+          "caterer-boston-c",
+          "activity-boston-c"
+        ],
+        "total_cost": 981.0,
+        "latency_ms": 0.005166992195881903,
+        "hard_constraint_validity": true,
+        "cross_domain_compatibility": true,
+        "evidence_grounded_arbitration": true,
+        "global_optimum": true,
+        "human_review_calibrated": null,
+        "disagreement_resolved_correctly": false,
+        "disagreement_resolved_incorrectly": false,
+        "specialist_call_count": 0,
+        "coordination_overhead_count": 0,
+        "arbitration": null,
+        "specialist_decisions": [],
+        "notes": [
+          "Baseline path uses only structured filtering and cost ranking."
+        ],
+        "failure_stage": null
+      },
+      "coordinated": {
+        "architecture": "minimal_specialist_coordination",
+        "feasibility_outcome": "FEASIBLE",
+        "selected_resource_ids": [
+          "venue-boston-hall-d",
+          "caterer-boston-c",
+          "activity-boston-c"
+        ],
+        "total_cost": 981.0,
+        "latency_ms": 0.039040998672135174,
+        "hard_constraint_validity": true,
+        "cross_domain_compatibility": true,
+        "evidence_grounded_arbitration": true,
+        "global_optimum": true,
+        "human_review_calibrated": null,
+        "disagreement_resolved_correctly": false,
+        "disagreement_resolved_incorrectly": false,
+        "specialist_call_count": 5,
+        "coordination_overhead_count": 5,
+        "arbitration": {
+          "outcome": "ACCEPT",
+          "feasibility_outcome": "FEASIBLE",
+          "selected_resource_ids": [
+            "venue-boston-hall-d",
+            "caterer-boston-c",
+            "activity-boston-c"
+          ],
+          "accepted_specialist_ids": [
+            "venue",
+            "catering",
+            "accessibility",
+            "scheduling",
+            "budget"
+          ],
+          "rejected_specialist_ids": [],
+          "overridden_specialist_ids": [],
+          "controlling_evidence_ids": [],
+          "dependency_conflicts": [],
+          "unresolved_uncertainties": [],
+          "reasons": [
+            "All specialists accepted the candidate."
+          ],
+          "global_score": 981.0,
+          "coordination_steps": [
+            "specialist:venue:ACCEPT",
+            "specialist:catering:ACCEPT",
+            "specialist:accessibility:ACCEPT",
+            "specialist:scheduling:ACCEPT",
+            "specialist:budget:ACCEPT"
+          ]
+        },
+        "specialist_decisions": [
+          {
+            "specialist_id": "venue",
+            "domain": "venue",
+            "recommendation": "accept venue-boston-hall-d",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "venue",
+              "location",
+              "capacity"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "The venue must be compatible with the chosen caterer and activity."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 1,
+            "recommended_resource_ids": [
+              "venue-boston-hall-d"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Venue specialist evaluates location, accessibility, and venue-specific policies."
+            ]
+          },
+          {
+            "specialist_id": "catering",
+            "domain": "catering_safety",
+            "recommendation": "accept caterer-boston-c",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "dietary_safety",
+              "catering_compatibility",
+              "budget"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "The caterer must satisfy requested dietary and venue rules."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 2,
+            "recommended_resource_ids": [
+              "caterer-boston-c"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Catering specialist evaluates food safety and venue-policy compatibility."
+            ]
+          },
+          {
+            "specialist_id": "accessibility",
+            "domain": "accessibility",
+            "recommendation": "accept venue-boston-hall-d",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "accessibility",
+              "room",
+              "path",
+              "restroom"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "Accessibility is enforced against the venue and relevant room/path."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 3,
+            "recommended_resource_ids": [
+              "venue-boston-hall-d"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Accessibility specialist checks venue-level and room-level evidence."
+            ]
+          },
+          {
+            "specialist_id": "scheduling",
+            "domain": "scheduling_operations",
+            "recommendation": "accept venue-boston-hall-d",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "schedule",
+              "setup",
+              "delivery",
+              "dependency_chain"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "The schedule must remain valid across all selected resources."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 4,
+            "recommended_resource_ids": [
+              "venue-boston-hall-d",
+              "activity-boston-c"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Scheduling specialist checks dependencies across venue, catering, and activity."
+            ]
+          },
+          {
+            "specialist_id": "budget",
+            "domain": "budget",
+            "recommendation": "Choose the least-cost viable combination.",
+            "status": "ACCEPT",
+            "hard_constraints_considered": [
+              "budget",
+              "fees",
+              "total_cost"
+            ],
+            "evidence_references": [],
+            "assumptions": [
+              "Budget checks use parsed explicit fee text when available."
+            ],
+            "unresolved_uncertainties": [],
+            "local_score": 1.0,
+            "local_rank": 5,
+            "recommended_resource_ids": [
+              "venue-boston-hall-d",
+              "caterer-boston-c",
+              "activity-boston-c"
+            ],
+            "reasons_for_rejection": [],
+            "dependency_decision_ids": [],
+            "notes": [
+              "Budget specialist compares total cost against the request budget."
+            ]
+          }
+        ],
+        "notes": [
+          "Minimal specialist coordination with explicit arbitration."
+        ],
+        "failure_stage": null
+      },
+      "disagreement_present": false,
+      "notes": [
+        "Many constraints but every one is already structurally explicit"
+      ]
+    }
+  ],
+  "metric_definitions": [
+    {
+      "name": "final_decision_accuracy",
+      "definition": "Fraction of scenarios whose terminal feasibility outcome matches the benchmark label."
+    },
+    {
+      "name": "hard_constraint_validity",
+      "definition": "Fraction of scenarios where the chosen result respects deterministic hard constraints."
+    },
+    {
+      "name": "cross_domain_compatibility_accuracy",
+      "definition": "Fraction of scenarios where cross-resource dependencies are handled correctly."
+    },
+    {
+      "name": "evidence_grounded_arbitration_accuracy",
+      "definition": "Fraction of evidence-relevant scenarios where the controlling evidence and arbitration outcome align with current authoritative evidence."
+    },
+    {
+      "name": "global_optimum_accuracy",
+      "definition": "Fraction of globally-optimizable scenarios where the chosen combination is the lowest-total-cost viable option."
+    },
+    {
+      "name": "human_review_calibration",
+      "definition": "Fraction of HUMAN_REVIEW_REQUIRED scenarios that the architecture routes to human review."
+    },
+    {
+      "name": "specialist_call_count",
+      "definition": "Total number of specialist recommendations produced by the coordinated path."
+    },
+    {
+      "name": "coordination_overhead_count",
+      "definition": "Total number of explicit coordination/dependency checks performed by the coordinator."
+    },
+    {
+      "name": "mean_latency_ms",
+      "definition": "Mean wall-clock latency per scenario for the architecture."
+    }
+  ],
+  "metadata": {
+    "config": {
+      "experiment_id": "v0.4-multi-agent-20260811T060908Z",
+      "code_commit_sha": "faf6b1d4a3cc1df761ae748adbfae0c054471021",
+      "working_tree_dirty": false,
+      "git_metadata_error": null,
+      "dataset_version": "1.0",
+      "architecture_variant": "minimal_specialist_coordination",
+      "model_provider": null,
+      "model_name": null,
+      "model_version": null,
+      "prompt_version": null,
+      "retrieval_configuration": null,
+      "random_seed": null,
+      "timestamp": "2026-08-11T06:09:08.903810Z"
+    },
+    "evaluation_split": "benchmark"
+  },
+  "notes": [
+    "This experiment is fully offline and deterministic.",
+    "It compares a v0.3-style single-planner path against minimal specialist coordination.",
+    "No LangGraph, autonomous tool loops, or live model calls are used."
+  ]
+}
