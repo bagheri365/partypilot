@@ -96,6 +96,8 @@ class V04ScenarioResult(BaseModel):
     title: str = Field(min_length=1)
     description: str = Field(min_length=1)
     capability_tags: tuple[str, ...] = ()
+    requires_evidence: bool = False
+    requires_global_optimum: bool = False
     expected_feasibility: FeasibilityOutcome
     baseline: CoordinatedPlanResult
     coordinated: CoordinatedPlanResult
@@ -134,7 +136,7 @@ class V04ExperimentMetrics(BaseModel):
     human_review_scenario_count: int = Field(ge=0)
     baseline: V04StrategyMetrics
     coordinated: V04StrategyMetrics
-    coordination_overhead_ratio: float = Field(ge=0)
+    coordination_overhead_ratio: float | None = None
     retention_rule_passed: bool
 
 
@@ -187,6 +189,8 @@ def run_v04_multi_agent_experiment(
                 title=_scenario_title(scenario.scenario.scenario_id),
                 description=_scenario_description(scenario.scenario.scenario_id),
                 capability_tags=scenario.metadata.capability_tags,
+                requires_evidence=scenario.metadata.requires_evidence,
+                requires_global_optimum=_scenario_requires_global_optimum(scenario),
                 expected_feasibility=scenario.scenario.expected_feasibility,
                 baseline=baseline,
                 coordinated=coordinated,
@@ -265,7 +269,10 @@ def render_v04_multi_agent_markdown(report: V04ComparisonReport) -> str:
             _strategy_row(report.metrics.baseline),
             _strategy_row(report.metrics.coordinated),
             "",
-            f"- Coordination overhead ratio: {report.metrics.coordination_overhead_ratio:.3f}",
+            (
+                "- Coordination overhead ratio: "
+                f"{_ratio_or_na(report.metrics.coordination_overhead_ratio)}"
+            ),
             f"- Retention rule passed: {report.metrics.retention_rule_passed}",
             "",
             "## Per-Scenario Results",
@@ -290,8 +297,8 @@ def render_v04_multi_agent_markdown(report: V04ComparisonReport) -> str:
                     "Stage |"
                 ),
                 "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---|",
-                _scenario_row(scenario.baseline),
-                _scenario_row(scenario.coordinated),
+                _scenario_row(scenario, scenario.baseline),
+                _scenario_row(scenario, scenario.coordinated),
                 "",
             ]
         )
@@ -944,6 +951,14 @@ def _aggregate_strategy_metrics(
             coordination_overhead_count=0,
             mean_latency_ms=0.0,
         )
+    evidence_pairs = tuple(
+        (
+            result,
+            scenario,
+        )
+        for result, scenario in zip(strategy_results, scenario_results, strict=True)
+        if scenario.requires_evidence
+    )
     review_pairs = tuple(
         (
             result,
@@ -958,7 +973,7 @@ def _aggregate_strategy_metrics(
             scenario,
         )
         for result, scenario in zip(strategy_results, scenario_results, strict=True)
-        if _requires_global_optimum(scenario)
+        if scenario.requires_global_optimum
     )
     return V04StrategyMetrics(
         architecture=architecture,
@@ -976,7 +991,7 @@ def _aggregate_strategy_metrics(
             result.cross_domain_compatibility for result in strategy_results
         ),
         evidence_grounded_arbitration_accuracy=_mean_bool(
-            result.evidence_grounded_arbitration for result in strategy_results
+            (result.evidence_grounded_arbitration for result, _scenario in evidence_pairs)
         ),
         global_optimum_accuracy=_mean_bool(
             (result.global_optimum is True for result, _scenario in global_optimum_pairs)
@@ -1005,9 +1020,9 @@ def _aggregate_comparison_metrics(
     scenario_results: Sequence[V04ScenarioResult],
 ) -> V04ExperimentMetrics:
     scenario_count = len(scenario_results)
-    evidence_relevant = sum(1 for scenario in scenario_results if _requires_evidence(scenario))
+    evidence_relevant = sum(1 for scenario in scenario_results if scenario.requires_evidence)
     global_optimum_scenarios = sum(
-        1 for scenario in scenario_results if _requires_global_optimum(scenario)
+        1 for scenario in scenario_results if scenario.requires_global_optimum
     )
     human_review_scenarios = sum(
         1
@@ -1035,7 +1050,7 @@ def _aggregate_comparison_metrics(
             coordinated_metrics.coordination_overhead_count
             / baseline_metrics.coordination_overhead_count
             if baseline_metrics.coordination_overhead_count > 0
-            else float(coordinated_metrics.coordination_overhead_count)
+            else None
         ),
         retention_rule_passed=_retention_rule_passed(baseline_metrics, coordinated_metrics),
     )
@@ -1186,19 +1201,6 @@ def _scenario_has_disagreement(scenario: CapabilityBoundaryScenario) -> bool:
             "cap-boundary-47-specialist-disagreement",
             "cap-boundary-59-conflicting-agents-evidence",
         }
-    )
-
-
-def _requires_evidence(scenario: V04ScenarioResult) -> bool:
-    return (
-        "requires_evidence" in scenario.capability_tags
-        or "evidence" in " ".join(scenario.notes).casefold()
-    )
-
-
-def _requires_global_optimum(scenario: V04ScenarioResult) -> bool:
-    return any("global_optimization" in tag for tag in scenario.capability_tags) or (
-        scenario.scenario_id == "cap-boundary-48-local-vs-global-optimum"
     )
 
 
@@ -1430,25 +1432,27 @@ def _recommendation_text(status: ArbitrationOutcome, resource_id: str) -> str:
     return f"{status.value.lower()} {resource_id}".strip()
 
 
-def _scenario_row(result: CoordinatedPlanResult) -> str:
-    feasible = _bool_to_metric(
-        result.feasibility_outcome is not FeasibilityOutcome.NO_FEASIBLE_PLAN
+def _scenario_row(scenario: V04ScenarioResult, result: CoordinatedPlanResult) -> str:
+    final_decision_accuracy = _bool_to_metric(
+        result.feasibility_outcome is scenario.expected_feasibility
     )
-    global_optimum = _bool_to_metric(
-        bool(result.global_optimum) if result.global_optimum is not None else False
+    evidence_grounded = _metric_or_na(
+        result.evidence_grounded_arbitration if scenario.requires_evidence else None
     )
-    human_review_value = (
-        bool(result.human_review_calibrated)
-        if result.human_review_calibrated is not None
-        else False
+    global_optimum = _metric_or_na(
+        result.global_optimum if scenario.requires_global_optimum else None
     )
-    human_review = _bool_to_metric(human_review_value)
+    human_review = _metric_or_na(
+        result.human_review_calibrated
+        if scenario.expected_feasibility is FeasibilityOutcome.HUMAN_REVIEW_REQUIRED
+        else None
+    )
     return (
         f"| `{result.architecture}` | `{result.feasibility_outcome.value}` | "
-        f"{feasible} | "
+        f"{final_decision_accuracy} | "
         f"{_bool_to_metric(result.hard_constraint_validity)} | "
         f"{_bool_to_metric(result.cross_domain_compatibility)} | "
-        f"{_bool_to_metric(result.evidence_grounded_arbitration)} | "
+        f"{evidence_grounded} | "
         f"{global_optimum} | "
         f"{human_review} | "
         f"{result.specialist_call_count} | {result.coordination_overhead_count} | "
@@ -1484,6 +1488,18 @@ def _bool_to_metric(value: bool) -> str:
     return f"{1.0 if value else 0.0:.3f}"
 
 
+def _metric_or_na(value: bool | None) -> str:
+    if value is None:
+        return "N/A"
+    return _bool_to_metric(value)
+
+
+def _ratio_or_na(value: float | None) -> str:
+    if value is None:
+        return "N/A"
+    return f"{value:.3f}"
+
+
 def _mean_bool(values: Iterable[bool]) -> float:
     values = tuple(values)
     if not values:
@@ -1511,6 +1527,12 @@ def _failure_stage(
             return "global_optimum"
         return "outcome"
     return None
+
+
+def _scenario_requires_global_optimum(scenario: CapabilityBoundaryScenario) -> bool:
+    return any("global_optimization" in tag for tag in scenario.metadata.capability_tags) or (
+        scenario.scenario.scenario_id == "cap-boundary-48-local-vs-global-optimum"
+    )
 
 
 def _candidate_is_global_optimum(

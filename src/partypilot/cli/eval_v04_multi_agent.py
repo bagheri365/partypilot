@@ -63,7 +63,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         "Coordinated global optimum accuracy: "
         f"{report.metrics.coordinated.global_optimum_accuracy:.3f}"
     )
-    print(f"Coordination overhead ratio: {report.metrics.coordination_overhead_ratio:.3f}")
+    ratio = report.metrics.coordination_overhead_ratio
+    print(
+        f"Coordination overhead ratio: {ratio:.3f}"
+        if ratio is not None
+        else "Coordination overhead ratio: N/A"
+    )
     failure_cases = [
         f"{scenario.scenario_id} ({scenario.coordinated.failure_stage})"
         for scenario in report.scenarios

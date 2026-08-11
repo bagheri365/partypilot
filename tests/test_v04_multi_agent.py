@@ -476,6 +476,50 @@ def test_conflicting_accessibility_evidence_requires_review_instead_of_reject() 
     )
 
 
+def test_v04_report_rows_and_aggregates_use_applicable_metric_semantics() -> None:
+    report = v04.run_v04_multi_agent_experiment()
+    scenario_42 = next(
+        item
+        for item in report.scenarios
+        if item.scenario_id == "cap-boundary-42-venue-activity-dependency"
+    )
+    scenario_59 = next(
+        item
+        for item in report.scenarios
+        if item.scenario_id == "cap-boundary-59-conflicting-agents-evidence"
+    )
+    scenario_61 = next(
+        item
+        for item in report.scenarios
+        if item.scenario_id == "cap-boundary-61-large-but-purely-structured"
+    )
+
+    assert report.metrics.evidence_relevant_scenario_count == 8
+    assert report.metrics.baseline.evidence_grounded_arbitration_accuracy == 0.0
+    assert report.metrics.coordinated.evidence_grounded_arbitration_accuracy == 1.0
+    assert report.metrics.coordination_overhead_ratio is None
+
+    baseline_42_row = v04._scenario_row(scenario_42, scenario_42.baseline)
+    coordinated_42_row = v04._scenario_row(scenario_42, scenario_42.coordinated)
+    baseline_59_row = v04._scenario_row(scenario_59, scenario_59.baseline)
+    coordinated_59_row = v04._scenario_row(scenario_59, scenario_59.coordinated)
+    baseline_61_row = v04._scenario_row(scenario_61, scenario_61.baseline)
+
+    assert "| `v0.3_stateful_single_planner` | `NO_FEASIBLE_PLAN` | 1.000 |" in baseline_42_row
+    assert "| `minimal_specialist_coordination` | `NO_FEASIBLE_PLAN` | 1.000 |" in (
+        coordinated_42_row
+    )
+    assert "| `v0.3_stateful_single_planner` | `FEASIBLE` | 0.000 |" in baseline_59_row
+    assert (
+        "| `minimal_specialist_coordination` | `HUMAN_REVIEW_REQUIRED` | 1.000 |"
+        in coordinated_59_row
+    )
+    assert "| N/A | N/A | N/A |" in baseline_61_row
+
+    markdown = v04.render_v04_multi_agent_markdown(report)
+    assert "Coordination overhead ratio: N/A" in markdown
+
+
 def test_eval_v04_cli_defaults_to_timestamped_artifacts(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
