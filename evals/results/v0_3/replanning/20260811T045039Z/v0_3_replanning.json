@@ -1,0 +1,532 @@
+{
+  "benchmark_name": "v0.3 replanning benchmark",
+  "benchmark_version": "1.0",
+  "evaluation_variant": "full_replan_vs_dependency_aware_targeted_replan",
+  "metadata": {
+    "config": {
+      "architecture_variant": "stateful_decomposition_and_targeted_replanning",
+      "code_commit_sha": "0722006540fc4111546a2d111084709cc8e377dd",
+      "dataset_version": "v0.3",
+      "experiment_id": "v0.3-replanning-20260811T045039Z",
+      "git_metadata_error": null,
+      "model_name": null,
+      "model_provider": null,
+      "model_version": null,
+      "prompt_version": null,
+      "random_seed": null,
+      "retrieval_configuration": null,
+      "timestamp": "2026-08-11T04:50:39.710108Z",
+      "working_tree_dirty": false
+    },
+    "evaluation_split": "benchmark"
+  },
+  "metric_definitions": [
+    {
+      "definition": "Fraction of required recomputations that are reflected in the final invalidated decision set.",
+      "name": "invalidation_accuracy"
+    },
+    {
+      "definition": "Fraction of benchmark-preserved decisions that remain preserved in the resulting state.",
+      "name": "preserved_decision_accuracy"
+    },
+    {
+      "definition": "Exact match between the expected final decision statuses and the strategy's resulting state, independent of recomputation volume.",
+      "name": "final_state_correctness"
+    },
+    {
+      "definition": "Total number of decisions recomputed by the strategy across scenarios.",
+      "name": "recomputed_decision_count"
+    },
+    {
+      "definition": "Count of recomputed decisions beyond the minimal required set.",
+      "name": "unnecessary_recomputation_count"
+    },
+    {
+      "definition": "Total count of decisions that should have been recomputed but were not.",
+      "name": "missed_recomputation_count"
+    },
+    {
+      "definition": "Targeted replanning reduction relative to full replanning, computed from aggregate recomputed decision counts.",
+      "name": "recomputation_reduction_ratio"
+    },
+    {
+      "definition": "Mean wall-clock latency per scenario for the strategy.",
+      "name": "mean_latency_ms"
+    }
+  ],
+  "metrics": {
+    "full_replan": {
+      "cycle_detected_count": 0,
+      "final_state_correctness": 1.0,
+      "invalidation_accuracy": 1.0,
+      "mean_latency_ms": 0.034066601074300706,
+      "missed_recomputation_count": 0,
+      "preserved_decision_accuracy": 1.0,
+      "recomputed_decision_count": 34,
+      "scenario_count": 5,
+      "strategy": "full_replan",
+      "unnecessary_recomputation_count": 16
+    },
+    "recomputation_reduction_ratio": 0.47058823529411764,
+    "retention_rule_passed": true,
+    "scenario_count": 5,
+    "targeted_replan": {
+      "cycle_detected_count": 0,
+      "final_state_correctness": 1.0,
+      "invalidation_accuracy": 1.0,
+      "mean_latency_ms": 0.022766803158447146,
+      "missed_recomputation_count": 0,
+      "preserved_decision_accuracy": 1.0,
+      "recomputed_decision_count": 18,
+      "scenario_count": 5,
+      "strategy": "targeted_replan",
+      "unnecessary_recomputation_count": 0
+    }
+  },
+  "notes": [
+    "This experiment is fully offline and deterministic.",
+    "It compares full replanning against dependency-aware targeted replanning.",
+    "Scenario IDs 51, 52, and 55 align with the predeclared capability-boundary research fixtures.",
+    "No agents, orchestration framework, semantic retrieval, RRF, or reranking are used."
+  ],
+  "scenarios": [
+    {
+      "capability_tags": [
+        "replanning",
+        "incremental_update",
+        "guest_count",
+        "cross_domain"
+      ],
+      "description": "Guest count changes after the initial plan, so only guest-sensitive decisions should be invalidated.",
+      "expected_invalidated_decision_ids": [
+        "venue_capacity",
+        "catering_quantity",
+        "seating",
+        "parking",
+        "total_cost"
+      ],
+      "expected_preserved_decision_ids": [
+        "theme",
+        "dietary_policies",
+        "entertainment",
+        "accessibility_requirements"
+      ],
+      "failure_stage": null,
+      "full_replan": {
+        "cycle_decision_ids": [],
+        "cycle_detected": false,
+        "cycle_error": null,
+        "final_state_correctness": 1.0,
+        "invalidated_decision_ids": [
+          "venue_capacity",
+          "catering_quantity",
+          "seating",
+          "parking",
+          "total_cost"
+        ],
+        "invalidation_accuracy": 1.0,
+        "latency_ms": 0.06237499474082142,
+        "missed_recomputation_count": 0,
+        "preserved_decision_accuracy": 1.0,
+        "preserved_decision_ids": [
+          "theme",
+          "dietary_policies",
+          "entertainment",
+          "accessibility_requirements"
+        ],
+        "recomputed_decision_count": 9,
+        "recomputed_decision_ids": [
+          "venue_capacity",
+          "catering_quantity",
+          "seating",
+          "parking",
+          "total_cost",
+          "theme",
+          "dietary_policies",
+          "entertainment",
+          "accessibility_requirements"
+        ],
+        "strategy": "full_replan",
+        "unnecessary_recomputation_count": 4
+      },
+      "notes": [
+        "Guest-count-sensitive decisions must be rechecked.",
+        "Theme and accessibility should survive the update."
+      ],
+      "scenario_id": "cap-boundary-51-incremental-replanning",
+      "targeted_replan": {
+        "cycle_decision_ids": [],
+        "cycle_detected": false,
+        "cycle_error": null,
+        "final_state_correctness": 1.0,
+        "invalidated_decision_ids": [
+          "venue_capacity",
+          "catering_quantity",
+          "seating",
+          "parking",
+          "total_cost"
+        ],
+        "invalidation_accuracy": 1.0,
+        "latency_ms": 0.034334007068537176,
+        "missed_recomputation_count": 0,
+        "preserved_decision_accuracy": 1.0,
+        "preserved_decision_ids": [
+          "theme",
+          "dietary_policies",
+          "entertainment",
+          "accessibility_requirements"
+        ],
+        "recomputed_decision_count": 5,
+        "recomputed_decision_ids": [
+          "venue_capacity",
+          "catering_quantity",
+          "seating",
+          "parking",
+          "total_cost"
+        ],
+        "strategy": "targeted_replan",
+        "unnecessary_recomputation_count": 0
+      },
+      "title": "Incremental replanning after guest-count increase"
+    },
+    {
+      "capability_tags": [
+        "replanning",
+        "safety_update",
+        "allergy",
+        "cross_domain"
+      ],
+      "description": "A newly introduced severe allergy should invalidate prior catering safety conclusions while preserving unrelated decisions.",
+      "expected_invalidated_decision_ids": [
+        "catering_safety_conclusion",
+        "dietary_evidence_review"
+      ],
+      "expected_preserved_decision_ids": [
+        "venue_choice",
+        "theme",
+        "entertainment",
+        "accessibility"
+      ],
+      "failure_stage": null,
+      "full_replan": {
+        "cycle_decision_ids": [],
+        "cycle_detected": false,
+        "cycle_error": null,
+        "final_state_correctness": 1.0,
+        "invalidated_decision_ids": [
+          "catering_safety_conclusion",
+          "dietary_evidence_review"
+        ],
+        "invalidation_accuracy": 1.0,
+        "latency_ms": 0.028417009161785245,
+        "missed_recomputation_count": 0,
+        "preserved_decision_accuracy": 1.0,
+        "preserved_decision_ids": [
+          "venue_choice",
+          "theme",
+          "entertainment",
+          "accessibility"
+        ],
+        "recomputed_decision_count": 6,
+        "recomputed_decision_ids": [
+          "catering_safety_conclusion",
+          "dietary_evidence_review",
+          "venue_choice",
+          "theme",
+          "entertainment",
+          "accessibility"
+        ],
+        "strategy": "full_replan",
+        "unnecessary_recomputation_count": 4
+      },
+      "notes": [
+        "The new allergy should invalidate catering assumptions.",
+        "Venue and preference decisions should remain stable."
+      ],
+      "scenario_id": "cap-boundary-52-new-safety-constraint-after-planning",
+      "targeted_replan": {
+        "cycle_decision_ids": [],
+        "cycle_detected": false,
+        "cycle_error": null,
+        "final_state_correctness": 1.0,
+        "invalidated_decision_ids": [
+          "catering_safety_conclusion",
+          "dietary_evidence_review"
+        ],
+        "invalidation_accuracy": 1.0,
+        "latency_ms": 0.021083003957755864,
+        "missed_recomputation_count": 0,
+        "preserved_decision_accuracy": 1.0,
+        "preserved_decision_ids": [
+          "venue_choice",
+          "theme",
+          "entertainment",
+          "accessibility"
+        ],
+        "recomputed_decision_count": 2,
+        "recomputed_decision_ids": [
+          "catering_safety_conclusion",
+          "dietary_evidence_review"
+        ],
+        "strategy": "targeted_replan",
+        "unnecessary_recomputation_count": 0
+      },
+      "title": "New safety constraint after planning"
+    },
+    {
+      "capability_tags": [
+        "replanning",
+        "cascading_failure",
+        "temporal_dependency",
+        "cross_domain"
+      ],
+      "description": "A schedule change should invalidate the rain contingency and propagate through the downstream setup, staffing, cost, and budget decisions.",
+      "expected_invalidated_decision_ids": [
+        "rain_contingency",
+        "indoor_move",
+        "indoor_setup_space",
+        "staffing_adjustment",
+        "cost_recalculation",
+        "budget_confirmation"
+      ],
+      "expected_preserved_decision_ids": [
+        "theme",
+        "dietary_policy",
+        "accessibility"
+      ],
+      "failure_stage": null,
+      "full_replan": {
+        "cycle_decision_ids": [],
+        "cycle_detected": false,
+        "cycle_error": null,
+        "final_state_correctness": 1.0,
+        "invalidated_decision_ids": [
+          "rain_contingency",
+          "indoor_move",
+          "indoor_setup_space",
+          "staffing_adjustment",
+          "cost_recalculation",
+          "budget_confirmation"
+        ],
+        "invalidation_accuracy": 1.0,
+        "latency_ms": 0.034500000765547156,
+        "missed_recomputation_count": 0,
+        "preserved_decision_accuracy": 1.0,
+        "preserved_decision_ids": [
+          "theme",
+          "dietary_policy",
+          "accessibility"
+        ],
+        "recomputed_decision_count": 9,
+        "recomputed_decision_ids": [
+          "rain_contingency",
+          "indoor_move",
+          "indoor_setup_space",
+          "staffing_adjustment",
+          "cost_recalculation",
+          "budget_confirmation",
+          "theme",
+          "dietary_policy",
+          "accessibility"
+        ],
+        "strategy": "full_replan",
+        "unnecessary_recomputation_count": 3
+      },
+      "notes": [
+        "Invalidation must propagate through prerequisite edges.",
+        "Budget should fail only after the chain reaches cost recalculation."
+      ],
+      "scenario_id": "cap-boundary-55-cascading-failure",
+      "targeted_replan": {
+        "cycle_decision_ids": [],
+        "cycle_detected": false,
+        "cycle_error": null,
+        "final_state_correctness": 1.0,
+        "invalidated_decision_ids": [
+          "rain_contingency",
+          "indoor_move",
+          "indoor_setup_space",
+          "staffing_adjustment",
+          "cost_recalculation",
+          "budget_confirmation"
+        ],
+        "invalidation_accuracy": 1.0,
+        "latency_ms": 0.02504199801478535,
+        "missed_recomputation_count": 0,
+        "preserved_decision_accuracy": 1.0,
+        "preserved_decision_ids": [
+          "theme",
+          "dietary_policy",
+          "accessibility"
+        ],
+        "recomputed_decision_count": 6,
+        "recomputed_decision_ids": [
+          "rain_contingency",
+          "indoor_move",
+          "indoor_setup_space",
+          "staffing_adjustment",
+          "cost_recalculation",
+          "budget_confirmation"
+        ],
+        "strategy": "targeted_replan",
+        "unnecessary_recomputation_count": 0
+      },
+      "title": "Cascading failure after a rain-triggered schedule change"
+    },
+    {
+      "capability_tags": [
+        "control",
+        "no_op",
+        "replanning"
+      ],
+      "description": "A no-op update should preserve the full plan.",
+      "expected_invalidated_decision_ids": [],
+      "expected_preserved_decision_ids": [
+        "venue_capacity",
+        "theme",
+        "dietary"
+      ],
+      "failure_stage": null,
+      "full_replan": {
+        "cycle_decision_ids": [],
+        "cycle_detected": false,
+        "cycle_error": null,
+        "final_state_correctness": 1.0,
+        "invalidated_decision_ids": [],
+        "invalidation_accuracy": 1.0,
+        "latency_ms": 0.01958299253601581,
+        "missed_recomputation_count": 0,
+        "preserved_decision_accuracy": 1.0,
+        "preserved_decision_ids": [
+          "venue_capacity",
+          "theme",
+          "dietary"
+        ],
+        "recomputed_decision_count": 3,
+        "recomputed_decision_ids": [
+          "venue_capacity",
+          "theme",
+          "dietary"
+        ],
+        "strategy": "full_replan",
+        "unnecessary_recomputation_count": 3
+      },
+      "notes": [
+        "Targeted replanning should recompute nothing."
+      ],
+      "scenario_id": "v0-3-control-no-op-update",
+      "targeted_replan": {
+        "cycle_decision_ids": [],
+        "cycle_detected": false,
+        "cycle_error": null,
+        "final_state_correctness": 1.0,
+        "invalidated_decision_ids": [],
+        "invalidation_accuracy": 1.0,
+        "latency_ms": 0.012417003745213151,
+        "missed_recomputation_count": 0,
+        "preserved_decision_accuracy": 1.0,
+        "preserved_decision_ids": [
+          "venue_capacity",
+          "theme",
+          "dietary"
+        ],
+        "recomputed_decision_count": 0,
+        "recomputed_decision_ids": [],
+        "strategy": "targeted_replan",
+        "unnecessary_recomputation_count": 0
+      },
+      "title": "No-op update control"
+    },
+    {
+      "capability_tags": [
+        "control",
+        "broad_update",
+        "replanning",
+        "cross_domain"
+      ],
+      "description": "A broad schedule change should legitimately invalidate most schedule-sensitive decisions.",
+      "expected_invalidated_decision_ids": [
+        "venue_availability",
+        "vendor_availability",
+        "setup_window",
+        "parking",
+        "budget"
+      ],
+      "expected_preserved_decision_ids": [
+        "accessibility",
+        "theme"
+      ],
+      "failure_stage": null,
+      "full_replan": {
+        "cycle_decision_ids": [],
+        "cycle_detected": false,
+        "cycle_error": null,
+        "final_state_correctness": 1.0,
+        "invalidated_decision_ids": [
+          "venue_availability",
+          "vendor_availability",
+          "setup_window",
+          "parking",
+          "budget"
+        ],
+        "invalidation_accuracy": 1.0,
+        "latency_ms": 0.0254580081673339,
+        "missed_recomputation_count": 0,
+        "preserved_decision_accuracy": 1.0,
+        "preserved_decision_ids": [
+          "accessibility",
+          "theme"
+        ],
+        "recomputed_decision_count": 7,
+        "recomputed_decision_ids": [
+          "venue_availability",
+          "vendor_availability",
+          "setup_window",
+          "parking",
+          "budget",
+          "accessibility",
+          "theme"
+        ],
+        "strategy": "full_replan",
+        "unnecessary_recomputation_count": 2
+      },
+      "notes": [
+        "This control should not artificially preserve decisions that depend on time."
+      ],
+      "scenario_id": "v0-3-control-broad-update",
+      "targeted_replan": {
+        "cycle_decision_ids": [],
+        "cycle_detected": false,
+        "cycle_error": null,
+        "final_state_correctness": 1.0,
+        "invalidated_decision_ids": [
+          "venue_availability",
+          "vendor_availability",
+          "setup_window",
+          "parking",
+          "budget"
+        ],
+        "invalidation_accuracy": 1.0,
+        "latency_ms": 0.020958003005944192,
+        "missed_recomputation_count": 0,
+        "preserved_decision_accuracy": 1.0,
+        "preserved_decision_ids": [
+          "accessibility",
+          "theme"
+        ],
+        "recomputed_decision_count": 5,
+        "recomputed_decision_ids": [
+          "venue_availability",
+          "vendor_availability",
+          "setup_window",
+          "parking",
+          "budget"
+        ],
+        "strategy": "targeted_replan",
+        "unnecessary_recomputation_count": 0
+      },
+      "title": "Broad schedule update control"
+    }
+  ],
+  "system_name": "PartyPilot v0.3 replanning experiment"
+}
