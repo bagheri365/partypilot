@@ -168,12 +168,44 @@ from partypilot.application.v03_replanning import (
 from partypilot.application.v03_replanning import (
     default_output_dir as default_v03_replanning_output_dir,
 )
+from partypilot.application.v04_multi_agent import (
+    BASELINE_ARCHITECTURE as V04_MULTI_AGENT_BASELINE_ARCHITECTURE,
+)
+from partypilot.application.v04_multi_agent import (
+    BENCHMARK_NAME as V04_MULTI_AGENT_BENCHMARK_NAME,
+)
+from partypilot.application.v04_multi_agent import (
+    BENCHMARK_VERSION as V04_MULTI_AGENT_BENCHMARK_VERSION,
+)
+from partypilot.application.v04_multi_agent import (
+    DEFAULT_OUTPUT_ROOT as V04_MULTI_AGENT_DEFAULT_OUTPUT_ROOT,
+)
+from partypilot.application.v04_multi_agent import (
+    MULTI_AGENT_ARCHITECTURE as V04_MULTI_AGENT_ARCHITECTURE,
+)
+from partypilot.application.v04_multi_agent import (
+    V04ComparisonReport,
+    V04ExperimentMetrics,
+    V04MetricDefinition,
+    V04ScenarioResult,
+    V04StrategyMetrics,
+    build_v04_metadata,
+    load_v04_multi_agent_benchmark,
+    render_v04_multi_agent_markdown,
+    run_v04_multi_agent_experiment,
+    save_v04_multi_agent_reports,
+)
 
 __all__ = [
     "V03_REPLANNING_ARCHITECTURE_VARIANT",
     "V03_REPLANNING_BENCHMARK_NAME",
     "V03_REPLANNING_BENCHMARK_VERSION",
     "V03_REPLANNING_DEFAULT_OUTPUT_ROOT",
+    "V04_MULTI_AGENT_ARCHITECTURE",
+    "V04_MULTI_AGENT_BASELINE_ARCHITECTURE",
+    "V04_MULTI_AGENT_BENCHMARK_NAME",
+    "V04_MULTI_AGENT_BENCHMARK_VERSION",
+    "V04_MULTI_AGENT_DEFAULT_OUTPUT_ROOT",
     "BaselineComparisonResult",
     "BaselineComparisonRunner",
     "BaselineExperimentResult",
@@ -249,6 +281,11 @@ __all__ = [
     "V02EvaluationRunner",
     "V02ScenarioEvaluation",
     "V03ReplanningReport",
+    "V04ComparisonReport",
+    "V04ExperimentMetrics",
+    "V04MetricDefinition",
+    "V04ScenarioResult",
+    "V04StrategyMetrics",
     "affected_dependency_kinds_for_updates",
     "apply_full_replanning",
     "apply_targeted_replanning",
@@ -256,6 +293,7 @@ __all__ = [
     "build_replanning_metadata",
     "build_replanning_metrics",
     "build_retrieval_benchmark_cases",
+    "build_v04_metadata",
     "calculate_metrics",
     "calculate_total_cost",
     "compare_replanning_strategies",
@@ -266,6 +304,7 @@ __all__ = [
     "load_retrieval_snapshots",
     "load_v01_baseline_snapshot",
     "load_v03_replanning_benchmark",
+    "load_v04_multi_agent_benchmark",
     "render_baseline_comparison_markdown",
     "render_baseline_experiment_markdown",
     "render_markdown_report",
@@ -274,16 +313,19 @@ __all__ = [
     "render_reranking_decision_markdown",
     "render_v02_evaluation_markdown",
     "render_v03_replanning_markdown",
+    "render_v04_multi_agent_markdown",
     "resolve_evidence_state",
     "run_baseline_experiment",
     "run_query_rewriting_experiment",
     "run_reranking_decision_experiment",
     "run_v03_replanning_experiment",
+    "run_v04_multi_agent_experiment",
     "save_baseline_comparison_reports",
     "save_baseline_experiment_reports",
     "save_evaluation_reports",
     "save_v02_evaluation_reports",
     "save_v03_replanning_reports",
+    "save_v04_multi_agent_reports",
     "validate_budget",
     "validate_citations",
     "validate_constraints",

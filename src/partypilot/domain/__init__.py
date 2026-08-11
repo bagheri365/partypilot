@@ -6,6 +6,15 @@ from partypilot.domain.constraints import (
     ConstraintProvenance,
     ConstraintType,
 )
+from partypilot.domain.coordination import (
+    ArbitrationOutcome,
+    ArbitrationTrace,
+    ArchitectureComparisonMetrics,
+    ArchitectureComparisonResult,
+    CoordinatedPlanResult,
+    SpecialistDecision,
+    SpecialistDomain,
+)
 from partypilot.domain.dependencies import (
     ResourceRequirement,
     ResourceRequirementMode,
@@ -75,6 +84,10 @@ __all__ = [
     "AccessibilityAttribute",
     "Activity",
     "AgeRange",
+    "ArbitrationOutcome",
+    "ArbitrationTrace",
+    "ArchitectureComparisonMetrics",
+    "ArchitectureComparisonResult",
     "CapabilityBoundaryScenario",
     "CapabilityBoundaryScenarioMetadata",
     "Caterer",
@@ -83,6 +96,7 @@ __all__ = [
     "ConstraintOperator",
     "ConstraintProvenance",
     "ConstraintType",
+    "CoordinatedPlanResult",
     "DatasetSplit",
     "DerivationMethod",
     "Duration",
@@ -120,6 +134,8 @@ __all__ = [
     "ScenarioCategory",
     "ScheduledInterval",
     "ScheduledTask",
+    "SpecialistDecision",
+    "SpecialistDomain",
     "TaskDependency",
     "TemporalRequirements",
     "TemporalValidationResult",
