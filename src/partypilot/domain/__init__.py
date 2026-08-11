@@ -40,6 +40,20 @@ from partypilot.domain.feasibility import (
 )
 from partypilot.domain.party_plan import PartyPlan
 from partypilot.domain.party_request import AgeRange, PartyRequest
+from partypilot.domain.planning_state import (
+    PlanningDecision,
+    PlanningDecisionCategory,
+    PlanningDecisionStatus,
+    PlanningDependency,
+    PlanningDependencyKind,
+    PlanningState,
+    PlanningStateSummary,
+    PlanningStateTransition,
+    PlanningUpdate,
+    PlanningUpdateKind,
+    ReplanningComparisonMetrics,
+    ReplanningComparisonReport,
+)
 from partypilot.domain.resources import (
     AccessibilityAttribute,
     Activity,
@@ -85,7 +99,19 @@ __all__ = [
     "FeasibilityResult",
     "PartyPlan",
     "PartyRequest",
+    "PlanningDecision",
+    "PlanningDecisionCategory",
+    "PlanningDecisionStatus",
+    "PlanningDependency",
+    "PlanningDependencyKind",
+    "PlanningState",
+    "PlanningStateSummary",
+    "PlanningStateTransition",
+    "PlanningUpdate",
+    "PlanningUpdateKind",
     "Provenance",
+    "ReplanningComparisonMetrics",
+    "ReplanningComparisonReport",
     "Resource",
     "ResourceCategory",
     "ResourceRequirement",

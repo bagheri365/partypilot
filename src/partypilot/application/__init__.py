@@ -113,6 +113,20 @@ from partypilot.application.single_pass_llm_planner import (
     SinglePassPlannerError,
     SinglePassPlannerProviderError,
 )
+from partypilot.application.state_invalidation import (
+    StateInvalidationResult,
+    affected_dependency_kinds_for_updates,
+    apply_updates,
+    build_replanning_metrics,
+)
+from partypilot.application.targeted_replanning import (
+    PlanningReplanningComparison,
+    PlanningReplanResult,
+    ReplanningStrategy,
+    apply_full_replanning,
+    apply_targeted_replanning,
+    compare_replanning_strategies,
+)
 from partypilot.application.v02_evaluation import (
     BaselineMetricsSnapshot,
     RetrievalMetricsSnapshot,
@@ -125,8 +139,41 @@ from partypilot.application.v02_evaluation import (
     render_v02_evaluation_markdown,
     save_v02_evaluation_reports,
 )
+from partypilot.application.v03_replanning import (
+    ARCHITECTURE_VARIANT as V03_REPLANNING_ARCHITECTURE_VARIANT,
+)
+from partypilot.application.v03_replanning import (
+    BENCHMARK_NAME as V03_REPLANNING_BENCHMARK_NAME,
+)
+from partypilot.application.v03_replanning import (
+    BENCHMARK_VERSION as V03_REPLANNING_BENCHMARK_VERSION,
+)
+from partypilot.application.v03_replanning import (
+    DEFAULT_OUTPUT_ROOT as V03_REPLANNING_DEFAULT_OUTPUT_ROOT,
+)
+from partypilot.application.v03_replanning import (
+    ReplanningBenchmarkScenario,
+    ReplanningExperimentMetrics,
+    ReplanningMetricDefinition,
+    ReplanningScenarioResult,
+    ReplanningScenarioStrategyMetrics,
+    ReplanningStrategyMetrics,
+    V03ReplanningReport,
+    build_replanning_metadata,
+    load_v03_replanning_benchmark,
+    render_v03_replanning_markdown,
+    run_v03_replanning_experiment,
+    save_v03_replanning_reports,
+)
+from partypilot.application.v03_replanning import (
+    default_output_dir as default_v03_replanning_output_dir,
+)
 
 __all__ = [
+    "V03_REPLANNING_ARCHITECTURE_VARIANT",
+    "V03_REPLANNING_BENCHMARK_NAME",
+    "V03_REPLANNING_BENCHMARK_VERSION",
+    "V03_REPLANNING_DEFAULT_OUTPUT_ROOT",
     "BaselineComparisonResult",
     "BaselineComparisonRunner",
     "BaselineExperimentResult",
@@ -167,12 +214,21 @@ __all__ = [
     "PlanCandidate",
     "PlannerConfig",
     "PlannerResult",
+    "PlanningReplanResult",
+    "PlanningReplanningComparison",
     "PreferenceWeights",
     "QueryRewriteDecisionRule",
     "QueryRewriteExperimentReport",
     "QueryRewriteMetrics",
     "QueryRewriteVariantResult",
     "RejectionCode",
+    "ReplanningBenchmarkScenario",
+    "ReplanningExperimentMetrics",
+    "ReplanningMetricDefinition",
+    "ReplanningScenarioResult",
+    "ReplanningScenarioStrategyMetrics",
+    "ReplanningStrategy",
+    "ReplanningStrategyMetrics",
     "RerankingDecisionReport",
     "RerankingDiagnosticMetrics",
     "RerankingDiagnosticRule",
@@ -187,18 +243,29 @@ __all__ = [
     "SinglePassPlannerError",
     "SinglePassPlannerProviderError",
     "SinglePassScenarioResult",
+    "StateInvalidationResult",
     "V02EvaluationMetrics",
     "V02EvaluationReport",
     "V02EvaluationRunner",
     "V02ScenarioEvaluation",
+    "V03ReplanningReport",
+    "affected_dependency_kinds_for_updates",
+    "apply_full_replanning",
+    "apply_targeted_replanning",
+    "apply_updates",
+    "build_replanning_metadata",
+    "build_replanning_metrics",
     "build_retrieval_benchmark_cases",
     "calculate_metrics",
     "calculate_total_cost",
+    "compare_replanning_strategies",
+    "default_v03_replanning_output_dir",
     "derive_constraint",
     "evaluate_retriever",
     "filter_candidates",
     "load_retrieval_snapshots",
     "load_v01_baseline_snapshot",
+    "load_v03_replanning_benchmark",
     "render_baseline_comparison_markdown",
     "render_baseline_experiment_markdown",
     "render_markdown_report",
@@ -206,14 +273,17 @@ __all__ = [
     "render_query_rewriting_markdown",
     "render_reranking_decision_markdown",
     "render_v02_evaluation_markdown",
+    "render_v03_replanning_markdown",
     "resolve_evidence_state",
     "run_baseline_experiment",
     "run_query_rewriting_experiment",
     "run_reranking_decision_experiment",
+    "run_v03_replanning_experiment",
     "save_baseline_comparison_reports",
     "save_baseline_experiment_reports",
     "save_evaluation_reports",
     "save_v02_evaluation_reports",
+    "save_v03_replanning_reports",
     "validate_budget",
     "validate_citations",
     "validate_constraints",

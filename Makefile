@@ -1,8 +1,9 @@
-.PHONY: format format-check lint typecheck test check eval-baseline eval-v02 compare-v0-2 capability-boundary-inventory smoke-ollama smoke-constraint-extractor
+.PHONY: format format-check lint typecheck test check eval-baseline eval-v02 eval-v03-replanning compare-v0-2 capability-boundary-inventory smoke-ollama smoke-constraint-extractor
 
 SPLIT ?= development
 EVAL_BASELINE_ARGS ?=
 EVAL_V02_ARGS ?=
+EVAL_V03_REPLANNING_ARGS ?=
 COMPARISON_ARGS ?=
 CAPABILITY_BOUNDARY_INVENTORY_ARGS ?=
 
@@ -26,6 +27,9 @@ eval-baseline:
 
 eval-v02:
 	./.venv/bin/python -m partypilot.cli.eval_v02 --split $(SPLIT) $(EVAL_V02_ARGS)
+
+eval-v03-replanning:
+	./.venv/bin/python -m partypilot.cli.eval_v03_replanning $(EVAL_V03_REPLANNING_ARGS)
 
 compare-v0-2:
 	./.venv/bin/python -m evals.run_v0_2_comparison $(COMPARISON_ARGS)

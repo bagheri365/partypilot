@@ -158,3 +158,13 @@ That comparison was useful for deciding between runtime variants, but it is not 
 - No-feasible-plan accuracy remains below perfect.
 - The evaluation corpus is intentionally small.
 - Semantic, RRF, and rewrite experiments are research comparisons, not retained runtime dependencies.
+
+## v0.3 Experiment
+
+PartyPilot v0.3 is currently exploring explicit planning state, dependency tracking, and targeted replanning.
+
+- The goal is to test whether stateful decomposition solves dynamic planning failures before multi-agent coordination is justified.
+- Multi-agent orchestration, LangGraph, specialist agents, and coordinator behavior are not implemented.
+- The retained v0.2 runtime remains unchanged; v0.3 experiments run beside it as deterministic research surfaces.
+- The replanning benchmark compares full replanning against dependency-aware targeted replanning on offline fixtures.
+- Run it with `make eval-v03-replanning`.
