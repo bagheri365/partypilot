@@ -1,0 +1,48 @@
+{
+  "benchmark_name": "PartyPilot v0.2 retrieval benchmark",
+  "embedding_backend": "deterministic_hash_embedding_256d",
+  "variants": [
+    {
+      "variant": "bm25",
+      "top_k": 5,
+      "query_count": 7,
+      "metrics": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "mrr": 0.8571428571428571,
+        "correct_policy_retrieval": 1.0,
+        "correct_version_retrieval": 1.0,
+        "wrong_vendor_retrieval_rate": 0.2857142857142857,
+        "mean_latency_ms": 0.0546379999702497
+      }
+    },
+    {
+      "variant": "semantic",
+      "top_k": 5,
+      "query_count": 7,
+      "metrics": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "mrr": 0.7261904761904762,
+        "correct_policy_retrieval": 1.0,
+        "correct_version_retrieval": 1.0,
+        "wrong_vendor_retrieval_rate": 0.3142857142857143,
+        "mean_latency_ms": 0.5842219999781914
+      }
+    },
+    {
+      "variant": "bm25_semantic_rrf",
+      "top_k": 5,
+      "query_count": 7,
+      "metrics": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "mrr": 0.8333333333333333,
+        "correct_policy_retrieval": 1.0,
+        "correct_version_retrieval": 1.0,
+        "wrong_vendor_retrieval_rate": 0.3142857142857143,
+        "mean_latency_ms": 0.7728919999538318
+      }
+    }
+  ]
+}

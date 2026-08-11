@@ -12,9 +12,12 @@ from partypilot.domain.dependencies import (
     TaskDependency,
 )
 from partypilot.domain.evaluation import (
+    CapabilityBoundaryScenario,
+    CapabilityBoundaryScenarioMetadata,
     ComplexityMetadata,
     DatasetSplit,
     EvaluationScenario,
+    RetrievalGroundTruthLabel,
     ScenarioCategory,
 )
 from partypilot.domain.evidence import (
@@ -22,6 +25,12 @@ from partypilot.domain.evidence import (
     EvidenceReference,
     EvidenceState,
     Provenance,
+)
+from partypilot.domain.evidence_corpus import (
+    EvidenceDocument,
+    EvidenceDocumentMetadata,
+    EvidenceDocumentStatus,
+    EvidenceDocumentType,
 )
 from partypilot.domain.experiment import ExperimentConfig, ExperimentResultMetadata
 from partypilot.domain.feasibility import (
@@ -52,6 +61,8 @@ __all__ = [
     "AccessibilityAttribute",
     "Activity",
     "AgeRange",
+    "CapabilityBoundaryScenario",
+    "CapabilityBoundaryScenarioMetadata",
     "Caterer",
     "ComplexityMetadata",
     "Constraint",
@@ -62,6 +73,10 @@ __all__ = [
     "DerivationMethod",
     "Duration",
     "EvaluationScenario",
+    "EvidenceDocument",
+    "EvidenceDocumentMetadata",
+    "EvidenceDocumentStatus",
+    "EvidenceDocumentType",
     "EvidenceReference",
     "EvidenceState",
     "ExperimentConfig",
@@ -75,6 +90,7 @@ __all__ = [
     "ResourceCategory",
     "ResourceRequirement",
     "ResourceRequirementMode",
+    "RetrievalGroundTruthLabel",
     "ScenarioCategory",
     "ScheduledInterval",
     "ScheduledTask",

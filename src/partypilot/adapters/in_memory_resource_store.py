@@ -71,7 +71,6 @@ DEFAULT_RESOURCES: tuple[Resource, ...] = (
         capacity=30,
         availability=(_window(11, 18),),
         age_restrictions=AgeRange(minimum=5, maximum=12),
-        accessibility_attributes=frozenset({AccessibilityAttribute.STEP_FREE_ACCESS}),
     ),
     Activity(
         resource_id="activity-teen-climbing",

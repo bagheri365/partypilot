@@ -1,0 +1,11 @@
+{
+  "benchmark_name": "capability-boundary",
+  "benchmark_version": "1.0",
+  "scenario_count": 50,
+  "scenarios_checksum_sha256": "e5afc4dd1be3849a974e5d5aa6875b73102a08d33454c4aaa1459a7f876dfb53",
+  "notes": [
+    "This benchmark is frozen for architecture-comparison work.",
+    "Any change to the scenario set must be explicit, versioned, and justified.",
+    "A simpler architecture matching or outperforming a multi-agent architecture is a valid result."
+  ]
+}

@@ -42,3 +42,4 @@ class ExperimentResultMetadata(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     config: ExperimentConfig
+    evaluation_split: NonEmptyString | None = None

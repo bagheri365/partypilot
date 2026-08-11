@@ -7,7 +7,7 @@ from pydantic import TypeAdapter
 
 from partypilot.domain.evaluation import DatasetSplit, EvaluationScenario, ScenarioCategory
 
-DATASET_PATH = Path(__file__).parents[1] / "data" / "evaluation" / "v0_1_scenarios.json"
+DATASET_PATH = Path(__file__).parents[1] / "data" / "evaluation" / "core_scenarios.json"
 
 
 def load_scenarios() -> tuple[EvaluationScenario, ...]:

@@ -1,0 +1,23 @@
+{
+  "experiment_name": "v0.2 reranking decision experiment",
+  "retained_retrieval": "bm25_with_conditional_rewriting",
+  "top_k": 5,
+  "query_count": 7,
+  "diagnostic_rule": {
+    "low_rank_starts_at": 3,
+    "minimum_low_rank_failure_rate": 0.2
+  },
+  "metrics": {
+    "recall_at_k": 1.0,
+    "mrr": 0.9285714285714286,
+    "correct_evidence_at_rank_1_rate": 0.8571428571428571,
+    "correct_evidence_low_rank_rate": 0.0,
+    "missed_relevant_evidence_rate": 0.0,
+    "mean_latency_ms": 0.060549857120609625
+  },
+  "failure_pattern_present": false,
+  "reranker_comparison_run": false,
+  "decision": "reranking_not_justified",
+  "decision_explanation": "The retained retriever does not commonly place correct evidence at rank 3 or lower, so Prompt 38 stops before adding a reranker.",
+  "model_cost_usd": 0.0
+}

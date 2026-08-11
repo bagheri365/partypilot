@@ -5,13 +5,29 @@ from decimal import Decimal
 
 from partypilot.adapters import DEFAULT_RESOURCES
 from partypilot.application import CandidateRequirements, RejectionCode, filter_candidates
-from partypilot.domain import AccessibilityAttribute, AgeRange, TimeWindow
+from partypilot.domain import (
+    AccessibilityAttribute,
+    Activity,
+    AgeRange,
+    TimeWindow,
+    Venue,
+)
 
 
 def _reasons_for(
     resource_id: str, requirements: CandidateRequirements
 ) -> tuple[RejectionCode, ...]:
     result = filter_candidates(DEFAULT_RESOURCES, requirements)
+    rejection = next(item for item in result.rejected if item.resource.resource_id == resource_id)
+    return rejection.reasons
+
+
+def _reasons_for_resource(
+    resources: tuple[Venue | Activity, ...],
+    resource_id: str,
+    requirements: CandidateRequirements,
+) -> tuple[RejectionCode, ...]:
+    result = filter_candidates(resources, requirements)
     rejection = next(item for item in result.rejected if item.resource.resource_id == resource_id)
     return rejection.reasons
 
@@ -93,6 +109,82 @@ def test_accessibility_filter_rejects_missing_required_attribute() -> None:
     )
 
     assert RejectionCode.ACCESSIBILITY_MISMATCH in reasons
+
+
+def test_accessible_venue_survives_physical_accessibility_filter() -> None:
+    result = filter_candidates(
+        DEFAULT_RESOURCES,
+        CandidateRequirements(
+            accessibility=frozenset({AccessibilityAttribute.WHEELCHAIR_ACCESSIBLE})
+        ),
+    )
+
+    assert "venue-brooklyn-loft" in {resource.resource_id for resource in result.eligible}
+    assert "activity-craft-party" in {resource.resource_id for resource in result.eligible}
+
+
+def test_activity_is_not_rejected_for_missing_venue_level_accessibility_attributes() -> None:
+    result = filter_candidates(
+        DEFAULT_RESOURCES,
+        CandidateRequirements(
+            accessibility=frozenset({AccessibilityAttribute.WHEELCHAIR_ACCESSIBLE}),
+        ),
+    )
+
+    assert "activity-craft-party" in {resource.resource_id for resource in result.eligible}
+
+
+def test_activity_specific_accessibility_accommodation_is_still_enforced() -> None:
+    custom_resources = (
+        Venue(
+            resource_id="venue-1",
+            name="Accessible Hall",
+            location="Brooklyn, NY",
+            price=Decimal("650.00"),
+            capacity=80,
+            availability=(),
+            accessibility_attributes=frozenset(
+                {
+                    AccessibilityAttribute.WHEELCHAIR_ACCESSIBLE,
+                    AccessibilityAttribute.ACCESSIBLE_RESTROOM,
+                }
+            ),
+        ),
+        Activity(
+            resource_id="activity-1",
+            name="Quiet Crafting",
+            location="Brooklyn, NY",
+            price=Decimal("120.00"),
+            capacity=20,
+            availability=(),
+            accessibility_attributes=frozenset({AccessibilityAttribute.QUIET_SPACE}),
+        ),
+        Activity(
+            resource_id="activity-2",
+            name="Noisy Crafting",
+            location="Brooklyn, NY",
+            price=Decimal("90.00"),
+            capacity=20,
+            availability=(),
+            accessibility_attributes=frozenset(),
+        ),
+    )
+
+    result = filter_candidates(
+        custom_resources,
+        CandidateRequirements(
+            accessibility=frozenset({AccessibilityAttribute.QUIET_SPACE}),
+        ),
+    )
+
+    assert "activity-1" in {resource.resource_id for resource in result.eligible}
+    assert RejectionCode.ACCESSIBILITY_MISMATCH in _reasons_for_resource(
+        custom_resources,
+        "activity-2",
+        CandidateRequirements(
+            accessibility=frozenset({AccessibilityAttribute.QUIET_SPACE}),
+        ),
+    )
 
 
 def test_candidate_can_collect_multiple_rejection_reasons() -> None:

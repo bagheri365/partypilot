@@ -53,7 +53,8 @@
     "dataset_split": "development",
     "labeling_notes": [
       "Simple feasible baseline using default Brooklyn fixtures."
-    ]
+    ],
+    "retrieval_ground_truth": []
   },
   {
     "scenario_id": "dev-exact-budget-02",
@@ -100,7 +101,8 @@
     "dataset_split": "development",
     "labeling_notes": [
       "Known fixture combination totals exactly 1375.00."
-    ]
+    ],
+    "retrieval_ground_truth": []
   },
   {
     "scenario_id": "dev-budget-infeasible-03",
@@ -143,7 +145,8 @@
     "dataset_split": "development",
     "labeling_notes": [
       "No default venue+caterer+activity combination fits this budget."
-    ]
+    ],
+    "retrieval_ground_truth": []
   },
   {
     "scenario_id": "dev-capacity-infeasible-04",
@@ -184,7 +187,8 @@
       "notes": []
     },
     "dataset_split": "development",
-    "labeling_notes": []
+    "labeling_notes": [],
+    "retrieval_ground_truth": []
   },
   {
     "scenario_id": "dev-unavailable-05",
@@ -225,7 +229,8 @@
       "notes": []
     },
     "dataset_split": "development",
-    "labeling_notes": []
+    "labeling_notes": [],
+    "retrieval_ground_truth": []
   },
   {
     "scenario_id": "dev-age-restricted-06",
@@ -266,7 +271,8 @@
       "notes": []
     },
     "dataset_split": "development",
-    "labeling_notes": []
+    "labeling_notes": [],
+    "retrieval_ground_truth": []
   },
   {
     "scenario_id": "dev-accessible-07",
@@ -304,7 +310,9 @@
       "caterer-family-table",
       "activity-craft-party"
     ],
-    "relevant_evidence_ids": [],
+    "relevant_evidence_ids": [
+      "doc-loft-accessibility-current"
+    ],
     "scenario_category": "accessibility",
     "complexity": {
       "hard_constraint_count": 4,
@@ -315,6 +323,17 @@
     "dataset_split": "development",
     "labeling_notes": [
       "Venue satisfies the named need; full-plan accessibility support remains resource-specific."
+    ],
+    "retrieval_ground_truth": [
+      {
+        "expected_document_ids": [
+          "doc-loft-accessibility-current"
+        ],
+        "resource_id": "venue-brooklyn-loft",
+        "expected_version": "2.1",
+        "expected_status": "current",
+        "policy_type": "accessibility_guidance"
+      }
     ]
   },
   {
@@ -352,7 +371,8 @@
     "dataset_split": "development",
     "labeling_notes": [
       "Multiple structured choices may survive initial filtering; expected IDs identify an acceptable baseline combination."
-    ]
+    ],
+    "retrieval_ground_truth": []
   },
   {
     "scenario_id": "dev-impossible-combination-09",
@@ -393,7 +413,8 @@
       "notes": []
     },
     "dataset_split": "development",
-    "labeling_notes": []
+    "labeling_notes": [],
+    "retrieval_ground_truth": []
   },
   {
     "scenario_id": "dev-allergy-evidence-10",
@@ -418,7 +439,7 @@
     "expected_derived_constraints": [],
     "expected_resource_ids": [],
     "relevant_evidence_ids": [
-      "evidence-caterer-peanut-policy"
+      "doc-family-allergen-current"
     ],
     "scenario_category": "safety_evidence",
     "complexity": {
@@ -430,6 +451,17 @@
     "dataset_split": "development",
     "labeling_notes": [
       "Structured fixtures do not establish allergen-safety claims."
+    ],
+    "retrieval_ground_truth": [
+      {
+        "expected_document_ids": [
+          "doc-family-allergen-current"
+        ],
+        "resource_id": "caterer-family-table",
+        "expected_version": "5.0",
+        "expected_status": "current",
+        "policy_type": "allergen_policy"
+      }
     ]
   },
   {
@@ -465,7 +497,8 @@
       "notes": []
     },
     "dataset_split": "frozen_test",
-    "labeling_notes": []
+    "labeling_notes": [],
+    "retrieval_ground_truth": []
   },
   {
     "scenario_id": "frozen-budget-12",
@@ -506,7 +539,8 @@
       "notes": []
     },
     "dataset_split": "frozen_test",
-    "labeling_notes": []
+    "labeling_notes": [],
+    "retrieval_ground_truth": []
   },
   {
     "scenario_id": "frozen-capacity-13",
@@ -547,7 +581,8 @@
       "notes": []
     },
     "dataset_split": "frozen_test",
-    "labeling_notes": []
+    "labeling_notes": [],
+    "retrieval_ground_truth": []
   },
   {
     "scenario_id": "frozen-age-14",
@@ -591,7 +626,8 @@
       "notes": []
     },
     "dataset_split": "frozen_test",
-    "labeling_notes": []
+    "labeling_notes": [],
+    "retrieval_ground_truth": []
   },
   {
     "scenario_id": "frozen-accessibility-15",
@@ -629,7 +665,9 @@
       "caterer-family-table",
       "activity-craft-party"
     ],
-    "relevant_evidence_ids": [],
+    "relevant_evidence_ids": [
+      "doc-loft-accessibility-current"
+    ],
     "scenario_category": "accessibility",
     "complexity": {
       "hard_constraint_count": 4,
@@ -638,7 +676,18 @@
       "notes": []
     },
     "dataset_split": "frozen_test",
-    "labeling_notes": []
+    "labeling_notes": [],
+    "retrieval_ground_truth": [
+      {
+        "expected_document_ids": [
+          "doc-loft-accessibility-current"
+        ],
+        "resource_id": "venue-brooklyn-loft",
+        "expected_version": "2.1",
+        "expected_status": "current",
+        "policy_type": "accessibility_guidance"
+      }
+    ]
   },
   {
     "scenario_id": "frozen-temporal-16",
@@ -681,7 +730,8 @@
       ]
     },
     "dataset_split": "frozen_test",
-    "labeling_notes": []
+    "labeling_notes": [],
+    "retrieval_ground_truth": []
   },
   {
     "scenario_id": "frozen-resource-conflict-17",
@@ -724,7 +774,8 @@
     "dataset_split": "frozen_test",
     "labeling_notes": [
       "Ground truth represents an exclusive-resource double-booking scenario for temporal validation."
-    ]
+    ],
+    "retrieval_ground_truth": []
   },
   {
     "scenario_id": "frozen-dietary-evidence-18",
@@ -749,7 +800,7 @@
     "expected_derived_constraints": [],
     "expected_resource_ids": [],
     "relevant_evidence_ids": [
-      "evidence-caterer-gluten-policy"
+      "doc-family-gluten-current"
     ],
     "scenario_category": "safety_evidence",
     "complexity": {
@@ -761,6 +812,17 @@
     "dataset_split": "frozen_test",
     "labeling_notes": [
       "No structured dietary-policy field proves gluten-free suitability."
+    ],
+    "retrieval_ground_truth": [
+      {
+        "expected_document_ids": [
+          "doc-family-gluten-current"
+        ],
+        "resource_id": "caterer-family-table",
+        "expected_version": "2.0",
+        "expected_status": "current",
+        "policy_type": "allergen_policy"
+      }
     ]
   },
   {
@@ -802,7 +864,8 @@
       "notes": []
     },
     "dataset_split": "adversarial",
-    "labeling_notes": []
+    "labeling_notes": [],
+    "retrieval_ground_truth": []
   },
   {
     "scenario_id": "adv-large-party-20",
@@ -843,7 +906,8 @@
       "notes": []
     },
     "dataset_split": "adversarial",
-    "labeling_notes": []
+    "labeling_notes": [],
+    "retrieval_ground_truth": []
   },
   {
     "scenario_id": "adv-wrong-location-21",
@@ -884,7 +948,8 @@
       "notes": []
     },
     "dataset_split": "adversarial",
-    "labeling_notes": []
+    "labeling_notes": [],
+    "retrieval_ground_truth": []
   },
   {
     "scenario_id": "adv-time-boundary-22",
@@ -931,7 +996,8 @@
     "dataset_split": "adversarial",
     "labeling_notes": [
       "Boundary case: activity availability ends exactly when the event ends."
-    ]
+    ],
+    "retrieval_ground_truth": []
   },
   {
     "scenario_id": "adv-age-range-23",
@@ -982,7 +1048,8 @@
       "notes": []
     },
     "dataset_split": "adversarial",
-    "labeling_notes": []
+    "labeling_notes": [],
+    "retrieval_ground_truth": []
   },
   {
     "scenario_id": "adv-complex-safety-24",
@@ -1014,9 +1081,9 @@
     "expected_derived_constraints": [],
     "expected_resource_ids": [],
     "relevant_evidence_ids": [
-      "evidence-allergen-policy",
-      "evidence-vegan-menu",
-      "evidence-quiet-room"
+      "doc-family-allergen-current",
+      "doc-family-vegan-current",
+      "doc-loft-accessibility-current"
     ],
     "scenario_category": "safety_evidence",
     "complexity": {
@@ -1030,6 +1097,35 @@
     "dataset_split": "adversarial",
     "labeling_notes": [
       "Must not be labeled feasible without policy evidence for every unresolved safety/accommodation need."
+    ],
+    "retrieval_ground_truth": [
+      {
+        "expected_document_ids": [
+          "doc-family-allergen-current"
+        ],
+        "resource_id": "caterer-family-table",
+        "expected_version": "5.0",
+        "expected_status": "current",
+        "policy_type": "allergen_policy"
+      },
+      {
+        "expected_document_ids": [
+          "doc-family-vegan-current"
+        ],
+        "resource_id": "caterer-family-table",
+        "expected_version": "1.0",
+        "expected_status": "current",
+        "policy_type": "venue_policy"
+      },
+      {
+        "expected_document_ids": [
+          "doc-loft-accessibility-current"
+        ],
+        "resource_id": "venue-brooklyn-loft",
+        "expected_version": "2.1",
+        "expected_status": "current",
+        "policy_type": "accessibility_guidance"
+      }
     ]
   }
 ]

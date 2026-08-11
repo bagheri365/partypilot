@@ -8,7 +8,7 @@ from enum import StrEnum
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from partypilot.domain.party_request import AgeRange
-from partypilot.domain.resources import AccessibilityAttribute, Resource
+from partypilot.domain.resources import AccessibilityAttribute, Resource, ResourceCategory
 from partypilot.domain.temporal import TimeWindow
 
 
@@ -111,10 +111,44 @@ def _rejection_reasons(
     ):
         reasons.append(RejectionCode.UNAVAILABLE)
 
-    if not requirements.accessibility.issubset(resource.accessibility_attributes):
+    required_accessibility = _required_accessibility_for(resource, requirements)
+    if required_accessibility and not required_accessibility.issubset(
+        resource.accessibility_attributes
+    ):
         reasons.append(RejectionCode.ACCESSIBILITY_MISMATCH)
 
     return tuple(reasons)
+
+
+def _required_accessibility_for(
+    resource: Resource,
+    requirements: CandidateRequirements,
+) -> frozenset[AccessibilityAttribute]:
+    """Return only the accessibility needs owned by the resource's category.
+
+    Venue-owned physical access stays on the venue. Activity-specific accommodations
+    are checked only against activity resources. Caterers currently do not own
+    accessibility capacity in the structured model.
+    """
+
+    if not requirements.accessibility:
+        return frozenset()
+
+    if resource.category is ResourceCategory.VENUE:
+        owned = {
+            AccessibilityAttribute.WHEELCHAIR_ACCESSIBLE,
+            AccessibilityAttribute.ACCESSIBLE_RESTROOM,
+            AccessibilityAttribute.STEP_FREE_ACCESS,
+        }
+    elif resource.category is ResourceCategory.ACTIVITY:
+        owned = {
+            AccessibilityAttribute.HEARING_ASSISTANCE,
+            AccessibilityAttribute.QUIET_SPACE,
+        }
+    else:
+        owned = set()
+
+    return frozenset(attr for attr in requirements.accessibility if attr in owned)
 
 
 def _age_is_compatible(resource: Resource, requirements: CandidateRequirements) -> bool:

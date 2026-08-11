@@ -34,7 +34,7 @@ from partypilot.application.single_pass_llm_planner import (
 from partypilot.domain.evaluation import DatasetSplit, EvaluationScenario
 from partypilot.domain.experiment import ExperimentConfig, ExperimentResultMetadata
 
-DATASET_PATH = Path(__file__).resolve().parents[3] / "data" / "evaluation" / "v0_1_scenarios.json"
+DATASET_PATH = Path(__file__).resolve().parents[3] / "data" / "evaluation" / "core_scenarios.json"
 DEFAULT_OUTPUT_ROOT = Path("evals") / "results" / "v0_1"
 ARCHITECTURE_VARIANT = "deterministic_plus_single_pass_llm"
 

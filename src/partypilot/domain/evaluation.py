@@ -6,8 +6,14 @@ from typing import Annotated
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from partypilot.domain.constraints import Constraint
+from partypilot.domain.evidence_corpus import (
+    EvidenceDocument,
+    EvidenceDocumentStatus,
+    EvidenceDocumentType,
+)
 from partypilot.domain.feasibility import FeasibilityOutcome
 from partypilot.domain.party_request import PartyRequest
+from partypilot.domain.resources import Resource
 
 NonEmptyString = Annotated[str, Field(min_length=1)]
 NonNegativeInt = Annotated[int, Field(ge=0)]
@@ -49,6 +55,18 @@ class ComplexityMetadata(BaseModel):
     notes: tuple[NonEmptyString, ...] = ()
 
 
+class RetrievalGroundTruthLabel(BaseModel):
+    """Human-authored retrieval ground truth for evidence-dependent scenarios."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    expected_document_ids: tuple[NonEmptyString, ...] = Field(min_length=1)
+    resource_id: NonEmptyString
+    expected_version: NonEmptyString
+    expected_status: EvidenceDocumentStatus
+    policy_type: EvidenceDocumentType
+
+
 class EvaluationScenario(BaseModel):
     """Ground-truth schema for a single PartyPilot benchmark scenario."""
 
@@ -61,6 +79,7 @@ class EvaluationScenario(BaseModel):
     expected_derived_constraints: tuple[Constraint, ...] = ()
     expected_resource_ids: tuple[NonEmptyString, ...] = ()
     relevant_evidence_ids: tuple[NonEmptyString, ...] = ()
+    retrieval_ground_truth: tuple[RetrievalGroundTruthLabel, ...] = ()
     scenario_category: ScenarioCategory
     complexity: ComplexityMetadata
     dataset_split: DatasetSplit
@@ -87,3 +106,33 @@ class EvaluationScenario(BaseModel):
         if invalid:
             raise ValueError("expected_derived_constraints may contain only DERIVED constraints")
         return constraints
+
+
+class CapabilityBoundaryScenarioMetadata(BaseModel):
+    """Typed research metadata for capability-boundary benchmark scenarios."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    capability_tags: tuple[NonEmptyString, ...] = ()
+    requires_evidence: bool
+    requires_semantic_interpretation: bool
+    requires_state_replanning: bool
+    cross_domain_dependency_count: NonNegativeInt = 0
+    adversarial_flag: bool = False
+    complexity_trap_flag: bool = False
+    milestone_introduced: NonEmptyString
+    notes: tuple[NonEmptyString, ...] = ()
+
+
+class CapabilityBoundaryScenario(BaseModel):
+    """Research benchmark scenario paired with forward-looking capability metadata."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    scenario: EvaluationScenario
+    metadata: CapabilityBoundaryScenarioMetadata
+    evidence_documents: tuple[EvidenceDocument, ...] = ()
+    structured_resources: tuple[Resource, ...] = ()
+
+
+CapabilityBoundaryScenario.model_rebuild()

@@ -1,0 +1,64 @@
+{
+  "experiment_name": "v0.2 query rewriting experiment",
+  "retained_retriever": "bm25",
+  "top_k": 5,
+  "decision_rule": {
+    "minimum_mrr_improvement": 0.02,
+    "minimum_correct_policy_improvement": 0.0,
+    "maximum_query_drift_rate": 0.05,
+    "maximum_latency_increase_ms": 2.0,
+    "maximum_model_cost_usd": 0.0
+  },
+  "variants": [
+    {
+      "variant": "direct_bm25",
+      "query_count": 7,
+      "rewritten_query_count": 0,
+      "metrics": {
+        "recall_at_k": 1.0,
+        "mrr": 0.8571428571428571,
+        "correct_policy_retrieval": 1.0,
+        "query_drift_rate": 0.0,
+        "grounded_decision_accuracy": null,
+        "mean_latency_ms": 0.0678504285523169,
+        "model_input_tokens": 0,
+        "model_output_tokens": 0,
+        "model_cost_usd": 0.0
+      }
+    },
+    {
+      "variant": "always_on_rewriting",
+      "query_count": 7,
+      "rewritten_query_count": 7,
+      "metrics": {
+        "recall_at_k": 1.0,
+        "mrr": 0.9285714285714286,
+        "correct_policy_retrieval": 1.0,
+        "query_drift_rate": 0.0,
+        "grounded_decision_accuracy": null,
+        "mean_latency_ms": 0.06723099993775707,
+        "model_input_tokens": 0,
+        "model_output_tokens": 0,
+        "model_cost_usd": 0.0
+      }
+    },
+    {
+      "variant": "conditional_rewriting",
+      "query_count": 7,
+      "rewritten_query_count": 3,
+      "metrics": {
+        "recall_at_k": 1.0,
+        "mrr": 0.9285714285714286,
+        "correct_policy_retrieval": 1.0,
+        "query_drift_rate": 0.0,
+        "grounded_decision_accuracy": null,
+        "mean_latency_ms": 0.056805714198812245,
+        "model_input_tokens": 0,
+        "model_output_tokens": 0,
+        "model_cost_usd": 0.0
+      }
+    }
+  ],
+  "decision": "retain_conditional_rewriting",
+  "decision_explanation": "A rewriting variant met the predeclared quality and safety/cost thresholds."
+}
