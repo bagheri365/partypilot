@@ -30,6 +30,12 @@ class ArbitrationOutcome(StrEnum):
     REPLAN_REQUIRED = "REPLAN_REQUIRED"
 
 
+class CoordinationFailureKind(StrEnum):
+    """Typed failure categories for coordinator-level execution."""
+
+    COORDINATOR_ERROR = "coordinator_error"
+
+
 class SpecialistDecision(BaseModel):
     """Structured, independently auditable specialist recommendation."""
 
@@ -128,6 +134,7 @@ class CoordinatedPlanResult(BaseModel):
     specialist_call_count: int = Field(ge=0)
     coordination_overhead_count: int = Field(ge=0)
     arbitration: ArbitrationTrace | None = None
+    failure_kind: CoordinationFailureKind | None = None
     specialist_decisions: tuple[SpecialistDecision, ...] = ()
     notes: tuple[NonEmptyString, ...] = ()
     failure_stage: NonEmptyString | None = None

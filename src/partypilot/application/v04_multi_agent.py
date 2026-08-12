@@ -632,6 +632,12 @@ def _coordinate_candidate(
         feasibility = FeasibilityOutcome.NO_FEASIBLE_PLAN
         reasons.append("Structured validation failed.")
 
+    if scenario.metadata.requires_evidence and outcome is not ArbitrationOutcome.REJECT:
+        selected_resource_evidence_ids = _selected_resource_evidence_ids(scenario, candidate)
+        controlling_evidence_ids = tuple(
+            dict.fromkeys(controlling_evidence_ids + selected_resource_evidence_ids)
+        )
+
     return (
         ArbitrationTrace(
             outcome=outcome,
@@ -664,6 +670,20 @@ def _coordinate_candidate(
         ),
         candidate,
         total_cost,
+    )
+
+
+def _selected_resource_evidence_ids(
+    scenario: CapabilityBoundaryScenario,
+    candidate: tuple[str, ...],
+) -> tuple[str, ...]:
+    selected_resource_ids = set(candidate)
+    return tuple(
+        dict.fromkeys(
+            document.metadata.document_id
+            for document in scenario.evidence_documents
+            if document.metadata.resource_id in selected_resource_ids
+        )
     )
 
 

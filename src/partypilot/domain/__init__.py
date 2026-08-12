@@ -12,6 +12,7 @@ from partypilot.domain.coordination import (
     ArchitectureComparisonMetrics,
     ArchitectureComparisonResult,
     CoordinatedPlanResult,
+    CoordinationFailureKind,
     SpecialistDecision,
     SpecialistDomain,
 )
@@ -47,6 +48,21 @@ from partypilot.domain.feasibility import (
     FeasibilityResult,
     ValidationResult,
 )
+from partypilot.domain.multi_agent import (
+    SPECIALIST_IDENTITIES,
+    CandidateEvaluationResult,
+    MultiAgentPlanningRuntimeResult,
+    MultiAgentSmokeRow,
+    SpecialistDecisionEnvelope,
+    SpecialistDecisionEvidenceReference,
+    SpecialistDecisionPayload,
+    SpecialistExecutionOutcome,
+    SpecialistExecutionTrace,
+    SpecialistFailureKind,
+    SpecialistIdentity,
+    canonical_specialist_id,
+    canonical_specialist_name,
+)
 from partypilot.domain.party_plan import PartyPlan
 from partypilot.domain.party_request import AgeRange, PartyRequest
 from partypilot.domain.planning_state import (
@@ -81,6 +97,7 @@ from partypilot.domain.temporal_validation import (
 )
 
 __all__ = [
+    "SPECIALIST_IDENTITIES",
     "AccessibilityAttribute",
     "Activity",
     "AgeRange",
@@ -88,6 +105,7 @@ __all__ = [
     "ArbitrationTrace",
     "ArchitectureComparisonMetrics",
     "ArchitectureComparisonResult",
+    "CandidateEvaluationResult",
     "CapabilityBoundaryScenario",
     "CapabilityBoundaryScenarioMetadata",
     "Caterer",
@@ -97,6 +115,7 @@ __all__ = [
     "ConstraintProvenance",
     "ConstraintType",
     "CoordinatedPlanResult",
+    "CoordinationFailureKind",
     "DatasetSplit",
     "DerivationMethod",
     "Duration",
@@ -111,6 +130,8 @@ __all__ = [
     "ExperimentResultMetadata",
     "FeasibilityOutcome",
     "FeasibilityResult",
+    "MultiAgentPlanningRuntimeResult",
+    "MultiAgentSmokeRow",
     "PartyPlan",
     "PartyRequest",
     "PlanningDecision",
@@ -135,7 +156,14 @@ __all__ = [
     "ScheduledInterval",
     "ScheduledTask",
     "SpecialistDecision",
+    "SpecialistDecisionEnvelope",
+    "SpecialistDecisionEvidenceReference",
+    "SpecialistDecisionPayload",
     "SpecialistDomain",
+    "SpecialistExecutionOutcome",
+    "SpecialistExecutionTrace",
+    "SpecialistFailureKind",
+    "SpecialistIdentity",
     "TaskDependency",
     "TemporalRequirements",
     "TemporalValidationResult",
@@ -144,5 +172,7 @@ __all__ = [
     "TimeWindow",
     "ValidationResult",
     "Venue",
+    "canonical_specialist_id",
+    "canonical_specialist_name",
     "validate_temporal_schedule",
 ]

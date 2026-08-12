@@ -28,6 +28,7 @@ from partypilot.ports.llm_provider import (
     UsageMetadata,
 )
 from partypilot.ports.resource_store import ResourceSearchCriteria, ResourceStore
+from partypilot.ports.specialist_agent import SpecialistAgent
 
 __all__ = [
     "ConstraintExtractionContext",
@@ -51,6 +52,7 @@ __all__ = [
     "ResourceSearchCriteria",
     "ResourceStore",
     "RetrievalMethod",
+    "SpecialistAgent",
     "StructuredOutputExpectation",
     "UsageMetadata",
 ]

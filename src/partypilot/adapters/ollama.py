@@ -162,7 +162,7 @@ class OllamaAdapter(LLMProvider):
         if request.system_prompt is not None:
             body["system"] = request.system_prompt
         if request.structured_output is not None:
-            body["format"] = "json"
+            body["format"] = request.structured_output.json_schema
         return json.dumps(body, separators=(",", ":")).encode("utf-8")
 
     @staticmethod

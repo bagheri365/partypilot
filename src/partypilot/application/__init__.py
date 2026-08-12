@@ -76,6 +76,34 @@ from partypilot.application.evidence_state_resolution import (
     EvidenceResolution,
     resolve_evidence_state,
 )
+from partypilot.application.multi_agent_runtime import (
+    BENCHMARK_NAME as V05_MULTI_AGENT_BENCHMARK_NAME,
+)
+from partypilot.application.multi_agent_runtime import (
+    BENCHMARK_VERSION as V05_MULTI_AGENT_BENCHMARK_VERSION,
+)
+from partypilot.application.multi_agent_runtime import (
+    DEFAULT_OUTPUT_ROOT as V05_MULTI_AGENT_DEFAULT_OUTPUT_ROOT,
+)
+from partypilot.application.multi_agent_runtime import (
+    LIVE_ARCHITECTURE as V05_MULTI_AGENT_ARCHITECTURE,
+)
+from partypilot.application.multi_agent_runtime import (
+    MultiAgentExperimentMetrics,
+    MultiAgentLiveReport,
+    MultiAgentMetricDefinition,
+    MultiAgentPlanningRuntime,
+    MultiAgentRuntimeMetrics,
+    MultiAgentScenarioResult,
+    MultiAgentStrategyMetrics,
+    load_v05_multi_agent_benchmark,
+    render_v05_multi_agent_markdown,
+    run_v05_multi_agent_experiment,
+    save_v05_multi_agent_reports,
+)
+from partypilot.application.multi_agent_runtime import (
+    default_output_dir as default_v05_multi_agent_output_dir,
+)
 from partypilot.application.query_rewriting_experiment import (
     ConditionalQueryRewriter,
     LexicalSignalPreservingRewriter,
@@ -206,6 +234,10 @@ __all__ = [
     "V04_MULTI_AGENT_BENCHMARK_NAME",
     "V04_MULTI_AGENT_BENCHMARK_VERSION",
     "V04_MULTI_AGENT_DEFAULT_OUTPUT_ROOT",
+    "V05_MULTI_AGENT_ARCHITECTURE",
+    "V05_MULTI_AGENT_BENCHMARK_NAME",
+    "V05_MULTI_AGENT_BENCHMARK_VERSION",
+    "V05_MULTI_AGENT_DEFAULT_OUTPUT_ROOT",
     "BaselineComparisonResult",
     "BaselineComparisonRunner",
     "BaselineExperimentResult",
@@ -243,6 +275,13 @@ __all__ = [
     "EvidenceResolution",
     "LLMPlanFailureCategory",
     "LexicalSignalPreservingRewriter",
+    "MultiAgentExperimentMetrics",
+    "MultiAgentLiveReport",
+    "MultiAgentMetricDefinition",
+    "MultiAgentPlanningRuntime",
+    "MultiAgentRuntimeMetrics",
+    "MultiAgentScenarioResult",
+    "MultiAgentStrategyMetrics",
     "PlanCandidate",
     "PlannerConfig",
     "PlannerResult",
@@ -298,6 +337,7 @@ __all__ = [
     "calculate_total_cost",
     "compare_replanning_strategies",
     "default_v03_replanning_output_dir",
+    "default_v05_multi_agent_output_dir",
     "derive_constraint",
     "evaluate_retriever",
     "filter_candidates",
@@ -305,6 +345,7 @@ __all__ = [
     "load_v01_baseline_snapshot",
     "load_v03_replanning_benchmark",
     "load_v04_multi_agent_benchmark",
+    "load_v05_multi_agent_benchmark",
     "render_baseline_comparison_markdown",
     "render_baseline_experiment_markdown",
     "render_markdown_report",
@@ -314,18 +355,21 @@ __all__ = [
     "render_v02_evaluation_markdown",
     "render_v03_replanning_markdown",
     "render_v04_multi_agent_markdown",
+    "render_v05_multi_agent_markdown",
     "resolve_evidence_state",
     "run_baseline_experiment",
     "run_query_rewriting_experiment",
     "run_reranking_decision_experiment",
     "run_v03_replanning_experiment",
     "run_v04_multi_agent_experiment",
+    "run_v05_multi_agent_experiment",
     "save_baseline_comparison_reports",
     "save_baseline_experiment_reports",
     "save_evaluation_reports",
     "save_v02_evaluation_reports",
     "save_v03_replanning_reports",
     "save_v04_multi_agent_reports",
+    "save_v05_multi_agent_reports",
     "validate_budget",
     "validate_citations",
     "validate_constraints",

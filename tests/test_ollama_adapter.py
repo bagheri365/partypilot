@@ -106,7 +106,7 @@ def test_generate_sends_model_prompts_schema_and_uses_bounded_timeout() -> None:
         "prompt": "Plan a party",
         "stream": False,
         "system": "Return JSON",
-        "format": "json",
+        "format": {"type": "object"},
     }
 
 
