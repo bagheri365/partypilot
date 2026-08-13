@@ -16,7 +16,11 @@ from partypilot.application.multi_agent_runtime import (
     save_v05_multi_agent_reports,
 )
 from partypilot.cli.eval_baseline import _ollama_config
-from partypilot.composition.multi_agent_runtime import build_live_multi_agent_runtime
+from partypilot.composition.multi_agent_runtime import (
+    OrchestrationBackend,
+    build_live_multi_agent_runtime,
+    resolve_orchestration_backend,
+)
 from partypilot.domain import CapabilityBoundaryScenario
 
 
@@ -56,6 +60,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Scenario ID to include in the live evaluation. Can be supplied multiple times.",
     )
+    parser.add_argument(
+        "--orchestration-backend",
+        choices=[backend.value for backend in OrchestrationBackend],
+        default=None,
+        help="Override PARTYPILOT_ORCHESTRATION_BACKEND.",
+    )
     return parser
 
 
@@ -65,6 +75,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     timestamp = datetime.now(UTC)
 
     try:
+        orchestration_backend = resolve_orchestration_backend(args.orchestration_backend)
         config = _ollama_config(
             model=args.model,
             base_url=args.base_url,
@@ -77,11 +88,13 @@ def main(argv: Sequence[str] | None = None) -> int:
             provider,
             timeout_seconds=config.timeout_seconds,
             model_name=config.model,
+            orchestration_backend=orchestration_backend,
         )
         scenarios = _filter_scenarios(load_v05_multi_agent_benchmark(), args.scenario_id)
         report = run_v05_multi_agent_experiment(
             scenarios,
             runtime=runtime,
+            orchestration_backend=orchestration_backend.value,
             timestamp=timestamp,
         )
         output_dir = args.output_dir or default_output_dir(timestamp)
@@ -95,6 +108,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     print("# PartyPilot v0.5 Live Multi-Agent Runtime Experiment")
     print(f"Benchmark: {report.benchmark_name} ({report.benchmark_version})")
+    print(f"Orchestration backend: {orchestration_backend.value}")
     print(f"JSON: {json_path}")
     print(f"Markdown: {markdown_path}")
     print(f"Scenario count: {report.metrics.scenario_count}")

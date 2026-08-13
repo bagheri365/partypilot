@@ -726,6 +726,7 @@ def run_v05_multi_agent_experiment(
     scenarios: Sequence[CapabilityBoundaryScenario] | None = None,
     *,
     runtime: MultiAgentPlanningRuntime,
+    orchestration_backend: str | None = None,
     timestamp: datetime | None = None,
 ) -> MultiAgentLiveReport:
     """Run the live-vs-deterministic multi-agent comparison on the bounded benchmark."""
@@ -798,7 +799,10 @@ def run_v05_multi_agent_experiment(
         metric_definitions=_metric_definitions(),
         terminal_outcome_mismatch_scenario_ids=terminal_outcome_mismatch_scenario_ids,
         diagnostic_failure_stage_scenario_ids=diagnostic_failure_stage_scenario_ids,
-        metadata=build_v05_metadata(timestamp=timestamp or datetime.now(UTC)),
+        metadata=build_v05_metadata(
+            timestamp=timestamp or datetime.now(UTC),
+            orchestration_backend=orchestration_backend,
+        ),
         notes=(
             "This experiment is fully offline with deterministic baseline comparison and live LLM specialist execution.",
             "The coordinator remains deterministic; only the specialists are LLM-backed.",
@@ -824,7 +828,11 @@ def default_output_dir(timestamp: datetime) -> Path:
     return DEFAULT_OUTPUT_ROOT / timestamp.strftime("%Y%m%dT%H%M%SZ")
 
 
-def build_v05_metadata(timestamp: datetime) -> ExperimentResultMetadata:
+def build_v05_metadata(
+    timestamp: datetime,
+    *,
+    orchestration_backend: str | None = None,
+) -> ExperimentResultMetadata:
     commit_sha, working_tree_dirty, git_metadata_error = v04._git_metadata()
     config = ExperimentConfig(
         experiment_id=f"v0.5-live-multi-agent-{timestamp.strftime('%Y%m%dT%H%M%SZ')}",
@@ -834,6 +842,11 @@ def build_v05_metadata(timestamp: datetime) -> ExperimentResultMetadata:
         dataset_version=BENCHMARK_VERSION,
         architecture_variant=LIVE_ARCHITECTURE,
         model_provider="ollama",
+        retrieval_configuration=(
+            {"orchestration_backend": orchestration_backend}
+            if orchestration_backend is not None
+            else None
+        ),
         timestamp=timestamp,
     )
     return ExperimentResultMetadata(config=config, evaluation_split="development")
@@ -863,6 +876,10 @@ def render_v05_multi_agent_markdown(report: MultiAgentLiveReport) -> str:
                 f"- Baseline architecture: `{report.baseline_architecture}`",
                 f"- Live architecture: `{report.live_architecture}`",
                 f"- Model name: `{config.model_name or 'n/a'}`",
+                (
+                    "- Orchestration backend: "
+                    f"`{(config.retrieval_configuration or {}).get('orchestration_backend', 'n/a')}`"
+                ),
                 "",
             ]
         )

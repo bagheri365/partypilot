@@ -9,8 +9,10 @@ from collections.abc import Sequence
 from partypilot.cli.eval_baseline import _ollama_config
 from partypilot.cli.smoke_multi_agent import DEFAULT_SMOKE_SCENARIO_IDS, _smoke_scenarios
 from partypilot.composition.multi_agent_runtime import (
+    OrchestrationBackend,
     SpecialistAdapterKind,
     build_live_multi_agent_runtime,
+    resolve_orchestration_backend,
 )
 from partypilot.domain import (
     CandidateEvaluationResult,
@@ -50,6 +52,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Scenario ID to smoke test. Can be supplied multiple times.",
     )
+    parser.add_argument(
+        "--orchestration-backend",
+        choices=[backend.value for backend in OrchestrationBackend],
+        default=None,
+        help="Override PARTYPILOT_ORCHESTRATION_BACKEND.",
+    )
     return parser
 
 
@@ -57,6 +65,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
+        orchestration_backend = resolve_orchestration_backend(args.orchestration_backend)
         config = _ollama_config(
             model=args.model,
             base_url=args.base_url,
@@ -76,6 +85,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             timeout_seconds=config.timeout_seconds,
             model_name=config.model,
             adapter_kind=SpecialistAdapterKind.LANGCHAIN,
+            orchestration_backend=orchestration_backend,
             ollama_config=config,
         )
         scenarios = _smoke_scenarios(args.scenario_id or DEFAULT_SMOKE_SCENARIO_IDS)
@@ -91,6 +101,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     print(f"Provider I/O timeout: {config.timeout_seconds:.1f}s")
     print(f"Ollama context budget: {getattr(config, 'num_ctx', 8192)} tokens")
     print(f"Model: {config.model}")
+    print(f"Orchestration backend: {orchestration_backend.value}")
     print(f"Scenario count: {len(scenarios)}")
 
     exit_code = 0

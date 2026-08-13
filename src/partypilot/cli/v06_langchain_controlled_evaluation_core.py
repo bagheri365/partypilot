@@ -21,6 +21,7 @@ from partypilot.application.multi_agent_runtime import (
     run_v05_multi_agent_experiment,
 )
 from partypilot.composition.multi_agent_runtime import (
+    OrchestrationBackend,
     SpecialistAdapterKind,
     build_live_multi_agent_runtime,
 )
@@ -75,6 +76,7 @@ class EvaluationEnvironment(BaseModel):
     langgraph_version: str | None = None
     model: str
     adapter_variant: str
+    orchestration_backend: str
     benchmark_version: str
     provider_io_timeout_seconds: float
     ollama_context_budget: int
@@ -213,6 +215,7 @@ def run_v06_controlled_evaluation(
     timeout_seconds: float,
     num_ctx: int,
     max_retries: int,
+    orchestration_backend: OrchestrationBackend = OrchestrationBackend.IMPERATIVE,
     allow_dirty_tree: bool = False,
     timestamp: datetime | None = None,
 ) -> V06ControlledEvaluationReport:
@@ -239,6 +242,7 @@ def run_v06_controlled_evaluation(
                 adapter_kind=adapter_kind,
                 config=config,
                 timeout_seconds=timeout_seconds,
+                orchestration_backend=orchestration_backend,
             )
             report = run_v05_multi_agent_experiment(
                 benchmark,
@@ -267,6 +271,7 @@ def run_v06_controlled_evaluation(
                     environment=_environment_from_config(
                         config=config,
                         adapter_variant=_variant_name(adapter_kind),
+                        orchestration_backend=orchestration_backend.value,
                         structured_output_strategy=strategy,
                     ),
                     report=_retag_report(report, adapter_kind),
@@ -406,6 +411,7 @@ def render_v06_controlled_run_markdown(report: V06RunReport) -> str:
         f"- Order position: `{report.order_position}`",
         f"- Scenario count: `{report.scenario_count}`",
         f"- Model: `{report.environment.model}`",
+        f"- Orchestration backend: `{report.environment.orchestration_backend}`",
         f"- Provider I/O timeout: `{report.environment.provider_io_timeout_seconds:.1f}s`",
         f"- Ollama context budget: `{report.environment.ollama_context_budget}`",
         f"- Structured-output strategy: `{report.environment.structured_output_strategy}`",
@@ -430,12 +436,16 @@ def render_v06_controlled_run_markdown(report: V06RunReport) -> str:
 
 
 def render_v06_controlled_evaluation_markdown(report: V06ControlledEvaluationReport) -> str:
+    orchestration_backend = (
+        report.runs[0].environment.orchestration_backend if report.runs else "n/a"
+    )
     lines = [
         "# PartyPilot v0.6d Three-Way LangChain Controlled Evaluation",
         "",
         f"- Benchmark: `{report.benchmark_name}`",
         f"- Benchmark version: `{report.benchmark_version}`",
         f"- Scenario count: `{report.scenario_count}`",
+        f"- Orchestration backend: `{orchestration_backend}`",
         f"- Run order blocks: `{report.run_order_blocks}`",
         "",
     ]
@@ -598,6 +608,7 @@ def _build_runtime(
     adapter_kind: SpecialistAdapterKind,
     config: OllamaConfig,
     timeout_seconds: float,
+    orchestration_backend: OrchestrationBackend,
 ) -> tuple[Any, str]:
     if adapter_kind is SpecialistAdapterKind.NATIVE:
         provider = OllamaAdapter(config, UrllibHttpTransport())
@@ -606,6 +617,7 @@ def _build_runtime(
             timeout_seconds=timeout_seconds,
             model_name=config.model,
             adapter_kind=adapter_kind,
+            orchestration_backend=orchestration_backend,
             ollama_config=config,
         )
         return runtime, "native_provider_json_schema"
@@ -614,6 +626,7 @@ def _build_runtime(
             timeout_seconds=timeout_seconds,
             model_name=config.model,
             adapter_kind=adapter_kind,
+            orchestration_backend=orchestration_backend,
             ollama_config=config,
         )
         return runtime, "with_structured_output"
@@ -621,6 +634,7 @@ def _build_runtime(
         timeout_seconds=timeout_seconds,
         model_name=config.model,
         adapter_kind=adapter_kind,
+        orchestration_backend=orchestration_backend,
         ollama_config=config,
     )
     return runtime, "ProviderStrategy(SpecialistDecisionEnvelope)"
@@ -659,6 +673,7 @@ def _environment_from_config(
     *,
     config: OllamaConfig,
     adapter_variant: str,
+    orchestration_backend: str,
     structured_output_strategy: str,
 ) -> EvaluationEnvironment:
     return EvaluationEnvironment(
@@ -669,6 +684,7 @@ def _environment_from_config(
         langgraph_version=_package_version("langgraph"),
         model=config.model,
         adapter_variant=adapter_variant,
+        orchestration_backend=orchestration_backend,
         benchmark_version=V06_BENCHMARK_VERSION,
         provider_io_timeout_seconds=config.timeout_seconds,
         ollama_context_budget=config.num_ctx,

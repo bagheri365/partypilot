@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from collections.abc import Callable
 from enum import StrEnum
 from typing import Any
@@ -34,6 +35,33 @@ class SpecialistAdapterKind(StrEnum):
     NATIVE = "native"
     LANGCHAIN = "langchain"
     LANGCHAIN_AGENT = "langchain_agent"
+
+
+class OrchestrationBackend(StrEnum):
+    """Selectable orchestration backend for the live multi-agent runtime."""
+
+    IMPERATIVE = "imperative"
+    LANGGRAPH = "langgraph"
+
+
+ORCHESTRATION_BACKEND_ENV_VAR = "PARTYPILOT_ORCHESTRATION_BACKEND"
+
+
+def resolve_orchestration_backend(
+    value: OrchestrationBackend | str | None = None,
+) -> OrchestrationBackend:
+    """Resolve the orchestration backend from an explicit value or environment."""
+
+    if value is None:
+        value = os.environ.get(ORCHESTRATION_BACKEND_ENV_VAR, OrchestrationBackend.IMPERATIVE.value)
+    if isinstance(value, OrchestrationBackend):
+        return value
+    normalized = value.strip().casefold()
+    try:
+        return OrchestrationBackend(normalized)
+    except ValueError as exc:
+        valid_values = ", ".join(backend.value for backend in OrchestrationBackend)
+        raise ValueError(f"{ORCHESTRATION_BACKEND_ENV_VAR} must be one of: {valid_values}") from exc
 
 
 def build_specialist_agents(
@@ -81,6 +109,7 @@ def build_live_multi_agent_runtime(
     model_name: str | None = None,
     max_workers: int | None = None,
     adapter_kind: SpecialistAdapterKind = SpecialistAdapterKind.NATIVE,
+    orchestration_backend: OrchestrationBackend = OrchestrationBackend.IMPERATIVE,
     ollama_config: OllamaConfig | None = None,
     chat_model_factory: Callable[[OllamaConfig], Any] | None = None,
 ) -> MultiAgentPlanningRuntime:
@@ -94,6 +123,19 @@ def build_live_multi_agent_runtime(
         ollama_config=ollama_config,
         chat_model_factory=chat_model_factory,
     )
+    if orchestration_backend is OrchestrationBackend.LANGGRAPH:
+        from langgraph.checkpoint.memory import InMemorySaver
+
+        from partypilot.composition.langgraph_multi_agent_runtime import (
+            LangGraphMultiAgentPlanningRuntime,
+        )
+
+        return LangGraphMultiAgentPlanningRuntime(
+            specialists,
+            model_name=model_name or LIVE_ARCHITECTURE,
+            max_workers=max_workers,
+            checkpointer=InMemorySaver(),
+        )
     return MultiAgentPlanningRuntime(
         specialists,
         model_name=model_name or LIVE_ARCHITECTURE,

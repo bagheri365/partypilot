@@ -20,9 +20,21 @@ from partypilot.application.multi_agent_runtime import (
     load_v05_multi_agent_benchmark,
     run_v05_multi_agent_experiment,
 )
+from partypilot.application.review_workflow import HumanReviewRequest
 from partypilot.cli import eval_v05_llm_multi_agent as eval_v05
-from partypilot.cli import smoke_langchain_agents, smoke_langchain_multi_agent, smoke_multi_agent
-from partypilot.composition.multi_agent_runtime import build_live_multi_agent_runtime
+from partypilot.cli import (
+    smoke_langchain_agents,
+    smoke_langchain_multi_agent,
+    smoke_langgraph_review,
+    smoke_multi_agent,
+)
+from partypilot.composition.langgraph_multi_agent_runtime import CandidateGraphExecutionStatus
+from partypilot.composition.multi_agent_runtime import (
+    ORCHESTRATION_BACKEND_ENV_VAR,
+    OrchestrationBackend,
+    build_live_multi_agent_runtime,
+    resolve_orchestration_backend,
+)
 from partypilot.domain import (
     SPECIALIST_IDENTITIES,
     AccessibilityAttribute,
@@ -1121,6 +1133,7 @@ def test_smoke_multi_agent_cli_reports_success(
     assert "Provider I/O timeout: 12.0s" in captured.out
     assert "Ollama context budget: 8192 tokens" in captured.out
     assert "Model: fake-model" in captured.out
+    assert "Orchestration backend: imperative" in captured.out
     assert "Scenario: cap-boundary-41-venue-caterer-dependency" in captured.out
     assert "Smoke test passed." in captured.out
 
@@ -1151,10 +1164,78 @@ def test_smoke_multi_agent_cli_reports_provider_failure_with_classification(
     assert exit_code == 1
     assert "Provider I/O timeout: 12.0s" in captured.out
     assert "Ollama context budget: 8192 tokens" in captured.out
+    assert "Orchestration backend: imperative" in captured.out
     assert (
         "FAILED | PROVIDER_CONNECTION_ERROR | OllamaConnectionError: Could not connect to Ollama"
         in captured.out
     )
+
+
+def test_smoke_multi_agent_cli_backend_flag_overrides_environment(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    provider = RoutingFakeLLMProvider()
+    scenario = _scenario()
+    fake_config = SimpleNamespace(
+        model="fake-model",
+        timeout_seconds=12.0,
+        num_ctx=8192,
+        max_retries=2,
+    )
+    fake_outcome = SimpleNamespace(
+        trace=SimpleNamespace(
+            specialist_name="VenueAgent",
+            evidence_document_ids=(),
+            validation_succeeded=True,
+            retry_count=0,
+            latency_ms=1.2,
+        ),
+        decision=SimpleNamespace(
+            status=SimpleNamespace(value="ACCEPT"),
+            recommended_resource_ids=(),
+            evidence_references=(),
+        ),
+        failure_kind=None,
+    )
+    fake_candidate = SimpleNamespace(candidate_resource_ids=(), specialist_outcomes=(fake_outcome,))
+    fake_result = SimpleNamespace(
+        final_result=SimpleNamespace(
+            selected_resource_ids=(),
+            feasibility_outcome=SimpleNamespace(value="FEASIBLE"),
+        ),
+        candidate_results=(fake_candidate,),
+    )
+    recorded_kwargs: dict[str, Any] = {}
+
+    class FakeRuntime:
+        def plan_scenario(self, scenario: Any) -> Any:
+            return fake_result
+
+    monkeypatch.setenv(ORCHESTRATION_BACKEND_ENV_VAR, "imperative")
+    monkeypatch.setattr(smoke_multi_agent, "_ollama_config", lambda **kwargs: fake_config)
+    monkeypatch.setattr(smoke_multi_agent, "OllamaAdapter", lambda config, transport: provider)
+    monkeypatch.setattr(smoke_multi_agent, "_smoke_scenarios", lambda scenario_ids: (scenario,))
+    monkeypatch.setattr(
+        smoke_multi_agent,
+        "build_live_multi_agent_runtime",
+        lambda *args, **kwargs: recorded_kwargs.update(kwargs) or FakeRuntime(),
+    )
+    monkeypatch.setattr(smoke_multi_agent, "_selected_candidate", lambda result: fake_candidate)
+
+    exit_code = smoke_multi_agent.main(
+        [
+            "--scenario-id",
+            "cap-boundary-41-venue-caterer-dependency",
+            "--orchestration-backend",
+            "langgraph",
+        ]
+    )
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert recorded_kwargs["orchestration_backend"] is OrchestrationBackend.LANGGRAPH
+    assert "Orchestration backend: langgraph" in captured.out
 
 
 def test_smoke_langchain_multi_agent_cli_reports_success(
@@ -1223,6 +1304,7 @@ def test_smoke_langchain_multi_agent_cli_reports_success(
     assert "Adapter kind: langchain" in captured.out
     assert "Provider I/O timeout: 12.0s" in captured.out
     assert "Ollama context budget: 8192 tokens" in captured.out
+    assert "Orchestration backend: imperative" in captured.out
     assert "Scenario: cap-boundary-41-venue-caterer-dependency" in captured.out
     assert "adapter=langchain_chatollama" in captured.out
     assert "Smoke test passed." in captured.out
@@ -1304,6 +1386,7 @@ def test_smoke_langchain_agents_cli_reports_tool_usage(
     assert "Provider I/O timeout: 12.0s" in captured.out
     assert "Ollama context budget: 8192 tokens" in captured.out
     assert "Agent execution bound: 8" in captured.out
+    assert "Orchestration backend: imperative" in captured.out
     assert "Tools invoked: yes" in captured.out
     assert "tool_calls=2" in captured.out
     assert "agent_limit_hit=False" in captured.out
@@ -1386,6 +1469,78 @@ def test_smoke_langchain_agents_cli_diagnostic_reports_tool_request_summary(
     assert "Tool calls: 1" in captured.out
     assert "request=resource_id=venue-alpha" in captured.out
     assert "Diagnostic passed." in captured.out
+
+
+def test_smoke_langgraph_review_cli_reports_suspend_and_resume(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    review_request = HumanReviewRequest(
+        execution_id="review-smoke",
+        scenario_id="cap-boundary-59-conflicting-agents-evidence",
+        planning_revision=3,
+        review_reason="Replan loop exhausted or human review requested.",
+        selected_resource_ids=("venue-alpha",),
+        controlling_evidence_ids=("evidence-1",),
+        unresolved_issues=("need human input",),
+        targeted_domains=("scheduling",),
+    )
+    suspended = SimpleNamespace(
+        execution_id="review-smoke",
+        status=CandidateGraphExecutionStatus.SUSPENDED_FOR_HUMAN_REVIEW,
+        planning_revision=3,
+        review_request=review_request,
+        graph_trace=(),
+        candidate_run=None,
+    )
+    resumed = SimpleNamespace(
+        execution_id="review-smoke",
+        status=CandidateGraphExecutionStatus.COMPLETED,
+        planning_revision=3,
+        review_request=review_request,
+        review_response=SimpleNamespace(action=SimpleNamespace(value="reject_current_plan")),
+        graph_trace=(SimpleNamespace(node_name="human_review"),),
+        candidate_run=SimpleNamespace(
+            coordinated_result=SimpleNamespace(
+                feasibility_outcome=SimpleNamespace(value="HUMAN_REVIEW_REQUIRED")
+            )
+        ),
+    )
+
+    class FakeRuntime:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            self.run_calls = 0
+
+        def run_reviewable_candidate(self, **kwargs: Any) -> Any:
+            self.run_calls += 1
+            return suspended
+
+        def resume_reviewable_candidate(self, **kwargs: Any) -> Any:
+            return resumed
+
+    monkeypatch.setattr(
+        smoke_langgraph_review,
+        "LangGraphMultiAgentPlanningRuntime",
+        FakeRuntime,
+    )
+    monkeypatch.setattr(
+        smoke_langgraph_review,
+        "_load_scenario",
+        lambda scenario_id: _scenario(),
+    )
+
+    exit_code = smoke_langgraph_review.main(
+        ["--scenario-id", "cap-boundary-59-conflicting-agents-evidence"]
+    )
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "PartyPilot v0.7c LangGraph Review Smoke Test" in captured.out
+    assert "Execution ID: review-smoke" in captured.out
+    assert "Status: suspended_for_human_review" in captured.out
+    assert "Resumed status: completed" in captured.out
+    assert "Final feasibility: HUMAN_REVIEW_REQUIRED" in captured.out
+    assert "Review smoke passed." in captured.out
 
 
 def test_runtime_classifies_provider_timeout() -> None:
@@ -1541,12 +1696,36 @@ def test_eval_v05_cli_writes_artifacts(
     captured = capsys.readouterr()
     assert exit_code == 0
     assert "PartyPilot v0.5 Live Multi-Agent Runtime Experiment" in captured.out
+    assert "Orchestration backend: imperative" in captured.out
     assert "Scenario count: 1" in captured.out
     assert "Retention rule passed:" in captured.out
     assert "Terminal outcome mismatches:" in captured.out
     assert "Diagnostic failure-stage cases:" in captured.out
     assert (tmp_path / "v0_5_llm_multi_agent.json").exists()
     assert (tmp_path / "v0_5_llm_multi_agent.md").exists()
+    assert "Orchestration backend" in (tmp_path / "v0_5_llm_multi_agent.md").read_text()
+
+
+def test_resolve_orchestration_backend_defaults_to_imperative_and_accepts_override(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv(ORCHESTRATION_BACKEND_ENV_VAR, raising=False)
+    assert resolve_orchestration_backend() is OrchestrationBackend.IMPERATIVE
+
+    monkeypatch.setenv(ORCHESTRATION_BACKEND_ENV_VAR, "langgraph")
+    assert resolve_orchestration_backend() is OrchestrationBackend.LANGGRAPH
+
+    monkeypatch.setenv(ORCHESTRATION_BACKEND_ENV_VAR, "imperative")
+    assert resolve_orchestration_backend("langgraph") is OrchestrationBackend.LANGGRAPH
+
+
+def test_resolve_orchestration_backend_rejects_invalid_env_value(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv(ORCHESTRATION_BACKEND_ENV_VAR, "mystery")
+
+    with pytest.raises(ValueError, match="PARTYPILOT_ORCHESTRATION_BACKEND must be one of"):
+        resolve_orchestration_backend()
 
 
 def test_load_v05_multi_agent_benchmark_reuses_the_bounded_development_subset() -> None:

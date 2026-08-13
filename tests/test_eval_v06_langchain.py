@@ -161,6 +161,7 @@ def test_cli_orchestrates_three_way_evaluation_and_writes_artifacts(
     captured = capsys.readouterr()
     assert exit_code == 0
     assert "PartyPilot v0.6d Three-Way LangChain Controlled Evaluation" in captured.out
+    assert "Orchestration backend: imperative" in captured.out
     assert "Run artifacts: 9" in captured.out
     assert "Variant: native_ollama" in captured.out
     assert "Disposition: RETAIN_EXPERIMENTALLY" in captured.out
