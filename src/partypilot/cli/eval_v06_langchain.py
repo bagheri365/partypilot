@@ -53,6 +53,11 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Scenario ID to include in the evaluation. Can be supplied multiple times.",
     )
+    parser.add_argument(
+        "--allow-dirty-tree",
+        action="store_true",
+        help="Allow exploratory evaluation from a dirty working tree.",
+    )
     return parser
 
 
@@ -77,6 +82,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             timeout_seconds=config.timeout_seconds,
             num_ctx=config.num_ctx,
             max_retries=config.max_retries,
+            allow_dirty_tree=args.allow_dirty_tree,
             timestamp=timestamp,
         )
         output_dir = args.output_dir or default_output_dir(timestamp)

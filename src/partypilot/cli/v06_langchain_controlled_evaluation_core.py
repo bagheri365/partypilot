@@ -25,9 +25,11 @@ from partypilot.composition.multi_agent_runtime import (
     build_live_multi_agent_runtime,
 )
 from partypilot.domain import (
+    CandidateEvaluationResult,
     CapabilityBoundaryScenario,
     ExperimentConfig,
     ExperimentResultMetadata,
+    MultiAgentPlanningRuntimeResult,
     SpecialistFailureKind,
 )
 
@@ -80,6 +82,27 @@ class EvaluationEnvironment(BaseModel):
     structured_output_strategy: str
 
 
+class GitSnapshot(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    git_sha: str | None = None
+    working_tree_dirty: bool | None = None
+    git_metadata_error: str | None = None
+
+
+class V06EvaluationProvenance(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    experiment_start_git_sha: str | None = None
+    experiment_start_working_tree_dirty: bool | None = None
+    experiment_start_git_metadata_error: str | None = None
+    artifact_git_sha: str | None = None
+    artifact_working_tree_dirty: bool | None = None
+    artifact_git_metadata_error: str | None = None
+    canonical_start_guard_enforced: bool = True
+    exploratory_mode: bool = False
+
+
 class V06RunReport(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
@@ -89,6 +112,7 @@ class V06RunReport(BaseModel):
     order_block_index: int = Field(ge=1)
     order_position: int = Field(ge=1)
     scenario_count: int = Field(ge=0)
+    provenance: V06EvaluationProvenance
     environment: EvaluationEnvironment
     report: MultiAgentLiveReport
 
@@ -111,20 +135,32 @@ class VariantAggregateReport(BaseModel):
     p95_successful_specialist_latency_ms: float | None = None
     mean_scenario_wall_clock_latency_ms: NumericSummary
     maximum_specialist_latency_ms: float | None = None
+    top_level_specialist_invocations: int = Field(ge=0)
+    successful_top_level_specialist_invocations: int = Field(ge=0)
     total_specialist_invocations: int = Field(ge=0)
     successful_specialist_invocations: int = Field(ge=0)
     specialist_success_rate_overall: float = Field(ge=0, le=1)
+    specialist_timeout_outcomes: int = Field(ge=0)
+    specialist_timeout_outcome_rate: float = Field(ge=0, le=1)
     provider_timeout_count: int = Field(ge=0)
+    provider_timeout_rate: float = Field(ge=0, le=1)
     provider_connection_failure_count: int = Field(ge=0)
     provider_response_failure_count: int = Field(ge=0)
     structured_output_validation_failure_count: int = Field(ge=0)
     specialist_domain_validation_failure_count: int = Field(ge=0)
+    provider_attempt_count: int = Field(ge=0)
+    provider_attempt_rate: float = Field(ge=0, le=1)
     retry_count: int = Field(ge=0)
     retry_rate: float = Field(ge=0, le=1)
     terminal_stability_rate: float = Field(ge=0, le=1)
     terminal_stable_scenario_ids: tuple[str, ...] = ()
     terminal_unstable_scenario_ids: tuple[str, ...] = ()
     total_tool_calls: int | None = None
+    candidate_specialist_invocations: int | None = None
+    candidate_provider_timeout_count: int | None = None
+    candidate_provider_timeout_rate: float | None = None
+    candidate_retry_count: int | None = None
+    candidate_retry_rate: float | None = None
     tool_calls_by_specialist: tuple[tuple[str, int], ...] | None = None
     tool_calls_by_scenario: tuple[tuple[str, int], ...] | None = None
     tool_call_success_count: int | None = None
@@ -148,6 +184,7 @@ class V06ControlledEvaluationReport(BaseModel):
     scenario_count: int = Field(ge=0)
     runs: tuple[V06RunReport, ...]
     variant_summaries: tuple[VariantAggregateReport, ...]
+    provenance: V06EvaluationProvenance
     metadata: ExperimentResultMetadata | None = None
     notes: tuple[str, ...] = ()
 
@@ -176,10 +213,17 @@ def run_v06_controlled_evaluation(
     timeout_seconds: float,
     num_ctx: int,
     max_retries: int,
+    allow_dirty_tree: bool = False,
     timestamp: datetime | None = None,
 ) -> V06ControlledEvaluationReport:
     benchmark = tuple(scenarios) if scenarios is not None else load_v05_multi_agent_benchmark()
     timestamp = timestamp or datetime.now(UTC)
+    experiment_start_snapshot = _git_snapshot()
+    if not allow_dirty_tree and experiment_start_snapshot.working_tree_dirty:
+        raise ValueError(
+            "canonical v0.6d evaluation requires a clean working tree; "
+            "pass --allow-dirty-tree for exploratory runs"
+        )
     config = OllamaConfig(
         base_url=base_url or "http://localhost:11434",
         model=model,
@@ -209,6 +253,17 @@ def run_v06_controlled_evaluation(
                     order_block_index=block_index,
                     order_position=position,
                     scenario_count=len(benchmark),
+                    provenance=V06EvaluationProvenance(
+                        experiment_start_git_sha=experiment_start_snapshot.git_sha,
+                        experiment_start_working_tree_dirty=(
+                            experiment_start_snapshot.working_tree_dirty
+                        ),
+                        experiment_start_git_metadata_error=(
+                            experiment_start_snapshot.git_metadata_error
+                        ),
+                        canonical_start_guard_enforced=not allow_dirty_tree,
+                        exploratory_mode=allow_dirty_tree,
+                    ),
                     environment=_environment_from_config(
                         config=config,
                         adapter_variant=_variant_name(adapter_kind),
@@ -220,7 +275,7 @@ def run_v06_controlled_evaluation(
 
     variant_summaries = _aggregate_variant_summaries(runs)
     variant_summaries = _apply_dispositions(tuple(variant_summaries))
-    metadata = _build_metadata(timestamp=timestamp)
+    metadata = _build_metadata(timestamp=timestamp, git_snapshot=experiment_start_snapshot)
     return V06ControlledEvaluationReport(
         run_order_blocks=tuple(
             tuple(_variant_name(kind) for kind in order) for order in V06_RUN_ORDER_BLOCKS
@@ -228,6 +283,13 @@ def run_v06_controlled_evaluation(
         scenario_count=len(benchmark),
         runs=tuple(runs),
         variant_summaries=variant_summaries,
+        provenance=V06EvaluationProvenance(
+            experiment_start_git_sha=experiment_start_snapshot.git_sha,
+            experiment_start_working_tree_dirty=experiment_start_snapshot.working_tree_dirty,
+            experiment_start_git_metadata_error=experiment_start_snapshot.git_metadata_error,
+            canonical_start_guard_enforced=not allow_dirty_tree,
+            exploratory_mode=allow_dirty_tree,
+        ),
         metadata=metadata,
         notes=(
             (
@@ -242,7 +304,21 @@ def run_v06_controlled_evaluation(
 def save_v06_controlled_evaluation_reports(
     report: V06ControlledEvaluationReport,
     output_dir: Path,
+    *,
+    artifact_snapshot: GitSnapshot | None = None,
 ) -> tuple[Path, Path]:
+    artifact_snapshot = artifact_snapshot or _git_snapshot()
+    report = report.model_copy(
+        update={
+            "provenance": report.provenance.model_copy(
+                update={
+                    "artifact_git_sha": artifact_snapshot.git_sha,
+                    "artifact_working_tree_dirty": artifact_snapshot.working_tree_dirty,
+                    "artifact_git_metadata_error": artifact_snapshot.git_metadata_error,
+                }
+            )
+        }
+    )
     metadata = report.metadata
     assert metadata is not None
     timestamp_dir = metadata.config.timestamp.strftime("%Y%m%dT%H%M%SZ")
@@ -271,8 +347,36 @@ def save_v06_controlled_run_reports(
     report: V06ControlledEvaluationReport,
     output_dir: Path,
 ) -> tuple[Path, Path, tuple[tuple[Path, Path], ...]]:
+    artifact_snapshot = _git_snapshot()
+    report = report.model_copy(
+        update={
+            "provenance": report.provenance.model_copy(
+                update={
+                    "artifact_git_sha": artifact_snapshot.git_sha,
+                    "artifact_working_tree_dirty": artifact_snapshot.working_tree_dirty,
+                    "artifact_git_metadata_error": artifact_snapshot.git_metadata_error,
+                }
+            ),
+            "runs": tuple(
+                run.model_copy(
+                    update={
+                        "provenance": run.provenance.model_copy(
+                            update={
+                                "artifact_git_sha": artifact_snapshot.git_sha,
+                                "artifact_working_tree_dirty": artifact_snapshot.working_tree_dirty,
+                                "artifact_git_metadata_error": artifact_snapshot.git_metadata_error,
+                            }
+                        )
+                    }
+                )
+                for run in report.runs
+            ),
+        }
+    )
     aggregate_json_path, aggregate_markdown_path = save_v06_controlled_evaluation_reports(
-        report, output_dir
+        report,
+        output_dir,
+        artifact_snapshot=artifact_snapshot,
     )
     metadata = report.metadata
     assert metadata is not None
@@ -307,6 +411,7 @@ def render_v06_controlled_run_markdown(report: V06RunReport) -> str:
         f"- Structured-output strategy: `{report.environment.structured_output_strategy}`",
         "",
     ]
+    lines.extend(_provenance_markdown_lines(report.provenance))
     if report.environment.langchain_version is not None:
         lines.extend(
             [
@@ -334,6 +439,7 @@ def render_v06_controlled_evaluation_markdown(report: V06ControlledEvaluationRep
         f"- Run order blocks: `{report.run_order_blocks}`",
         "",
     ]
+    lines.extend(_provenance_markdown_lines(report.provenance))
     if report.metadata is not None:
         config = report.metadata.config
         python_version = report.runs[0].environment.python_version if report.runs else "n/a"
@@ -373,11 +479,24 @@ def render_v06_controlled_evaluation_markdown(report: V06ControlledEvaluationRep
         )
         total_specialist_invocations = str(summary.total_specialist_invocations)
         successful_specialist_invocations = str(summary.successful_specialist_invocations)
+        top_level_specialist_invocations = str(summary.top_level_specialist_invocations)
+        successful_top_level_specialist_invocations = str(
+            summary.successful_top_level_specialist_invocations
+        )
         provider_timeout_count = str(summary.provider_timeout_count)
         provider_connection_failure_count = str(summary.provider_connection_failure_count)
         provider_response_failure_count = str(summary.provider_response_failure_count)
         structured_output_failures = str(summary.structured_output_validation_failure_count)
         specialist_domain_failures = str(summary.specialist_domain_validation_failure_count)
+        candidate_specialist_invocations = str(summary.candidate_specialist_invocations or "n/a")
+        candidate_provider_timeout_count = str(
+            summary.candidate_provider_timeout_count
+            if summary.candidate_provider_timeout_count is not None
+            else "n/a"
+        )
+        candidate_retry_count = str(
+            summary.candidate_retry_count if summary.candidate_retry_count is not None else "n/a"
+        )
         total_tool_calls = (
             str(summary.total_tool_calls) if summary.total_tool_calls is not None else "n/a"
         )
@@ -402,6 +521,11 @@ def render_v06_controlled_evaluation_markdown(report: V06ControlledEvaluationRep
                 f"- Global-optimum accuracy: `{global_optimum}`",
                 f"- Human-review calibration: `{human_review}`",
                 f"- Specialist success rate: `{specialist_success}`",
+                f"- Top-level specialist invocations: `{top_level_specialist_invocations}`",
+                (
+                    "- Successful top-level specialist invocations: "
+                    f"`{successful_top_level_specialist_invocations}`"
+                ),
                 f"- Mean successful specialist latency (ms): `{mean_successful_latency}`",
                 f"- Median successful specialist latency (ms): `{median_successful_latency}`",
                 f"- p95 successful specialist latency (ms): `{p95_successful_latency}`",
@@ -412,11 +536,20 @@ def render_v06_controlled_evaluation_markdown(report: V06ControlledEvaluationRep
                 f"- Retry count: `{summary.retry_count}`",
                 f"- Retry rate: `{summary.retry_rate:.3f}`",
                 f"- Terminal stability rate: `{summary.terminal_stability_rate:.3f}`",
-                f"- Provider timeout count: `{provider_timeout_count}`",
+                f"- Specialist timeout outcomes: `{provider_timeout_count}`",
+                (
+                    f"- Specialist timeout outcome rate: "
+                    f"`{summary.specialist_timeout_outcome_rate:.3f}`"
+                ),
+                f"- Candidate specialist invocations: `{candidate_specialist_invocations}`",
+                f"- Candidate provider timeout outcomes: `{candidate_provider_timeout_count}`",
+                f"- Candidate retry count: `{candidate_retry_count}`",
                 f"- Provider connection failure count: `{provider_connection_failure_count}`",
                 f"- Provider response failure count: `{provider_response_failure_count}`",
                 f"- Structured-output validation failures: `{structured_output_failures}`",
                 f"- Specialist-domain validation failures: `{specialist_domain_failures}`",
+                f"- Provider attempts: `{summary.provider_attempt_count}`",
+                f"- Provider attempt rate: `{summary.provider_attempt_rate:.3f}`",
                 f"- Tool calls: `{total_tool_calls}`",
                 f"- No-tool specialist completions: `{no_tool_specialist_completions}`",
                 f"- Scenarios with tool use: `{scenarios_with_tool_use}`",
@@ -440,6 +573,24 @@ def render_v06_controlled_evaluation_markdown(report: V06ControlledEvaluationRep
             ]
         )
     return "\n".join(lines)
+
+
+def _provenance_markdown_lines(provenance: V06EvaluationProvenance) -> list[str]:
+    experiment_start_working_tree_dirty = provenance.experiment_start_working_tree_dirty
+    experiment_start_git_metadata_error = provenance.experiment_start_git_metadata_error
+    return [
+        "## Provenance",
+        "",
+        f"- Experiment start Git SHA: `{provenance.experiment_start_git_sha or 'n/a'}`",
+        f"- Experiment start working tree dirty: `{experiment_start_working_tree_dirty}`",
+        f"- Experiment start git metadata error: `{experiment_start_git_metadata_error or 'n/a'}`",
+        f"- Artifact Git SHA: `{provenance.artifact_git_sha or 'n/a'}`",
+        f"- Artifact working tree dirty: `{provenance.artifact_working_tree_dirty}`",
+        f"- Artifact git metadata error: `{provenance.artifact_git_metadata_error or 'n/a'}`",
+        f"- Canonical start guard enforced: `{provenance.canonical_start_guard_enforced}`",
+        f"- Exploratory mode: `{provenance.exploratory_mode}`",
+        "",
+    ]
 
 
 def _build_runtime(
@@ -526,13 +677,16 @@ def _environment_from_config(
     )
 
 
-def _build_metadata(timestamp: datetime) -> ExperimentResultMetadata:
-    commit_sha, working_tree_dirty, git_metadata_error = v04._git_metadata()
+def _build_metadata(
+    timestamp: datetime,
+    *,
+    git_snapshot: GitSnapshot,
+) -> ExperimentResultMetadata:
     config = ExperimentConfig(
         experiment_id=f"v0.6d-three-way-langchain-controlled-{timestamp.strftime('%Y%m%dT%H%M%SZ')}",
-        code_commit_sha=commit_sha,
-        working_tree_dirty=working_tree_dirty,
-        git_metadata_error=git_metadata_error,
+        code_commit_sha=git_snapshot.git_sha,
+        working_tree_dirty=git_snapshot.working_tree_dirty,
+        git_metadata_error=git_snapshot.git_metadata_error,
         dataset_version=V06_BENCHMARK_VERSION,
         architecture_variant=V06_EVALUATION_VARIANT,
         model_provider="ollama",
@@ -552,6 +706,48 @@ def _aggregate_variant_summaries(
         for variant in V06_VARIANT_ORDER
         if (variant_runs := grouped.get(variant)) is not None
     )
+
+
+def _git_snapshot() -> GitSnapshot:
+    commit_sha, working_tree_dirty, git_metadata_error = v04._git_metadata()
+    return GitSnapshot(
+        git_sha=commit_sha,
+        working_tree_dirty=working_tree_dirty,
+        git_metadata_error=git_metadata_error,
+    )
+
+
+def _selected_candidate(
+    runtime: MultiAgentPlanningRuntimeResult,
+) -> CandidateEvaluationResult | None:
+    selected_resource_ids = tuple(runtime.final_result.selected_resource_ids)
+    for candidate in runtime.candidate_results:
+        if tuple(candidate.candidate_resource_ids) == selected_resource_ids:
+            return candidate
+    return runtime.candidate_results[0] if runtime.candidate_results else None
+
+
+def _collect_variant_outcomes(
+    live_reports: Sequence[MultiAgentLiveReport],
+) -> tuple[tuple[Any, ...], tuple[Any, ...]]:
+    selected_outcomes: list[Any] = []
+    candidate_outcomes: list[Any] = []
+    for report in live_reports:
+        for scenario in report.scenarios:
+            selected_candidate = _selected_candidate(scenario.runtime)
+            if selected_candidate is not None:
+                selected_outcomes.extend(selected_candidate.specialist_outcomes)
+            for candidate in scenario.runtime.candidate_results:
+                candidate_outcomes.extend(candidate.specialist_outcomes)
+    return tuple(selected_outcomes), tuple(candidate_outcomes)
+
+
+def _selected_candidate_success_rate(report: MultiAgentLiveReport) -> float:
+    selected_outcomes, _ = _collect_variant_outcomes((report,))
+    total = len(selected_outcomes)
+    if total == 0:
+        return 1.0
+    return sum(1 for outcome in selected_outcomes if outcome.trace.validation_succeeded) / total
 
 
 def _summarize_variant(
@@ -581,50 +777,39 @@ def _summarize_variant(
         report.metrics.live.human_review_calibration for report in live_reports
     )
     specialist_success_rate = _summary(
-        report.metrics.runtime.specialist_success_rate for report in live_reports
+        _selected_candidate_success_rate(report) for report in live_reports
     )
     scenario_wall_clock_latency = _summary(
         report.metrics.runtime.mean_latency_ms for report in live_reports
     )
+    selected_outcomes, candidate_outcomes = _collect_variant_outcomes(live_reports)
+    selected_total = len(selected_outcomes)
+    candidate_total = len(candidate_outcomes)
+    selected_success_total = sum(
+        1 for outcome in selected_outcomes if outcome.trace.validation_succeeded
+    )
+    selected_failure_kind_counts: Counter[str] = Counter(
+        outcome.failure_kind.value
+        for outcome in selected_outcomes
+        if outcome.failure_kind is not None
+    )
+    candidate_failure_kind_counts: Counter[str] = Counter(
+        outcome.failure_kind.value
+        for outcome in candidate_outcomes
+        if outcome.failure_kind is not None
+    )
+    selected_retry_count = sum(outcome.trace.retry_count for outcome in selected_outcomes)
+    candidate_retry_count = sum(outcome.trace.retry_count for outcome in candidate_outcomes)
+    selected_retry_rate = selected_retry_count / selected_total if selected_total else 0.0
+    candidate_retry_rate = candidate_retry_count / candidate_total if candidate_total else 0.0
     successful_latencies = [
-        trace.latency_ms
-        for report in live_reports
-        for scenario in report.scenarios
-        for trace in scenario.runtime.execution_traces
-        if trace.validation_succeeded
+        outcome.trace.latency_ms
+        for outcome in selected_outcomes
+        if outcome.trace.validation_succeeded
     ]
-    all_latencies = [
-        trace.latency_ms
-        for report in live_reports
-        for scenario in report.scenarios
-        for trace in scenario.runtime.execution_traces
-    ]
-    failure_kind_counts: Counter[str] = Counter(
-        trace.failure_kind.value
-        for report in live_reports
-        for scenario in report.scenarios
-        for trace in scenario.runtime.execution_traces
-        if trace.failure_kind is not None
-    )
-    total_specialist_invocations = sum(
-        len(scenario.runtime.execution_traces)
-        for report in live_reports
-        for scenario in report.scenarios
-    )
-    successful_specialist_invocations = sum(
-        1
-        for report in live_reports
-        for scenario in report.scenarios
-        for trace in scenario.runtime.execution_traces
-        if trace.validation_succeeded
-    )
-    retry_count = sum(
-        trace.retry_count
-        for report in live_reports
-        for scenario in report.scenarios
-        for trace in scenario.runtime.execution_traces
-    )
-    retry_rate = retry_count / total_specialist_invocations if total_specialist_invocations else 0.0
+    all_latencies = [outcome.trace.latency_ms for outcome in selected_outcomes]
+    selected_attempt_count = sum(outcome.trace.retry_count + 1 for outcome in selected_outcomes)
+    selected_attempt_rate = selected_attempt_count / selected_total if selected_total else 0.0
     stability = _terminal_stability(variant_runs)
     tool_totals = _tool_aggregate(variant_runs) if variant == "langchain_agent" else None
     disposition = _variant_disposition(
@@ -633,11 +818,11 @@ def _summarize_variant(
         evidence_summary=evidence_grounded_arbitration_accuracy,
         success_summary=specialist_success_rate,
         validation_failure_rate=(
-            failure_kind_counts.get(
+            selected_failure_kind_counts.get(
                 SpecialistFailureKind.STRUCTURED_OUTPUT_VALIDATION_ERROR.value, 0
             )
-            / total_specialist_invocations
-            if total_specialist_invocations
+            / selected_total
+            if selected_total
             else 0.0
         ),
         tool_totals=tool_totals,
@@ -660,51 +845,94 @@ def _summarize_variant(
         ),
         mean_scenario_wall_clock_latency_ms=scenario_wall_clock_latency,
         maximum_specialist_latency_ms=max(all_latencies) if all_latencies else None,
-        total_specialist_invocations=total_specialist_invocations,
-        successful_specialist_invocations=successful_specialist_invocations,
+        top_level_specialist_invocations=selected_total,
+        successful_top_level_specialist_invocations=selected_success_total,
+        total_specialist_invocations=selected_total,
+        successful_specialist_invocations=selected_success_total,
         specialist_success_rate_overall=(
-            successful_specialist_invocations / total_specialist_invocations
-            if total_specialist_invocations
-            else 1.0
+            selected_success_total / selected_total if selected_total else 1.0
         ),
-        provider_timeout_count=failure_kind_counts.get(
+        specialist_timeout_outcomes=selected_failure_kind_counts.get(
             SpecialistFailureKind.PROVIDER_TIMEOUT.value, 0
         ),
-        provider_connection_failure_count=failure_kind_counts.get(
+        specialist_timeout_outcome_rate=(
+            selected_failure_kind_counts.get(SpecialistFailureKind.PROVIDER_TIMEOUT.value, 0)
+            / selected_total
+            if selected_total
+            else 0.0
+        ),
+        provider_timeout_count=selected_failure_kind_counts.get(
+            SpecialistFailureKind.PROVIDER_TIMEOUT.value, 0
+        ),
+        provider_timeout_rate=(
+            selected_failure_kind_counts.get(SpecialistFailureKind.PROVIDER_TIMEOUT.value, 0)
+            / selected_total
+            if selected_total
+            else 0.0
+        ),
+        provider_connection_failure_count=selected_failure_kind_counts.get(
             SpecialistFailureKind.PROVIDER_CONNECTION_ERROR.value, 0
         ),
-        provider_response_failure_count=failure_kind_counts.get(
+        provider_response_failure_count=selected_failure_kind_counts.get(
             SpecialistFailureKind.PROVIDER_RESPONSE_ERROR.value, 0
         ),
-        structured_output_validation_failure_count=failure_kind_counts.get(
+        structured_output_validation_failure_count=selected_failure_kind_counts.get(
             SpecialistFailureKind.STRUCTURED_OUTPUT_VALIDATION_ERROR.value, 0
         ),
-        specialist_domain_validation_failure_count=failure_kind_counts.get(
+        specialist_domain_validation_failure_count=selected_failure_kind_counts.get(
             SpecialistFailureKind.SPECIALIST_DOMAIN_VALIDATION_ERROR.value, 0
         ),
-        retry_count=retry_count,
-        retry_rate=retry_rate,
+        provider_attempt_count=selected_attempt_count,
+        provider_attempt_rate=selected_attempt_rate,
+        retry_count=selected_retry_count,
+        retry_rate=selected_retry_rate,
+        candidate_specialist_invocations=candidate_total,
+        candidate_provider_timeout_count=candidate_failure_kind_counts.get(
+            SpecialistFailureKind.PROVIDER_TIMEOUT.value, 0
+        ),
+        candidate_provider_timeout_rate=(
+            candidate_failure_kind_counts.get(SpecialistFailureKind.PROVIDER_TIMEOUT.value, 0)
+            / candidate_total
+            if candidate_total
+            else 0.0
+        ),
+        candidate_retry_count=candidate_retry_count,
+        candidate_retry_rate=candidate_retry_rate,
         terminal_stability_rate=stability["rate"],
         terminal_stable_scenario_ids=stability["stable"],
         terminal_unstable_scenario_ids=stability["unstable"],
-        total_tool_calls=tool_totals["total_tool_calls"] if tool_totals is not None else None,
-        tool_calls_by_specialist=tool_totals["by_specialist"] if tool_totals is not None else None,
-        tool_calls_by_scenario=tool_totals["by_scenario"] if tool_totals is not None else None,
-        tool_call_success_count=tool_totals["success"] if tool_totals is not None else None,
-        tool_call_failure_count=tool_totals["failure"] if tool_totals is not None else None,
-        no_tool_specialist_completions=(
-            tool_totals["no_tool_specialist_completions"] if tool_totals is not None else None
-        ),
-        scenarios_with_tool_use=(
-            tool_totals["scenarios_with_tool_use"] if tool_totals is not None else None
-        ),
-        specialist_domains_with_tool_use=(
-            tool_totals["specialist_domains_with_tool_use"] if tool_totals is not None else None
-        ),
-        execution_limit_hits=tool_totals["execution_limit_hits"]
+        total_tool_calls=tool_totals["selected_total_tool_calls"]
         if tool_totals is not None
         else None,
-        total_model_invocations=None,
+        tool_calls_by_specialist=(
+            tool_totals["selected_by_specialist"] if tool_totals is not None else None
+        ),
+        tool_calls_by_scenario=(
+            tool_totals["selected_by_scenario"] if tool_totals is not None else None
+        ),
+        tool_call_success_count=tool_totals["selected_success"]
+        if tool_totals is not None
+        else None,
+        tool_call_failure_count=tool_totals["selected_failure"]
+        if tool_totals is not None
+        else None,
+        no_tool_specialist_completions=(
+            tool_totals["selected_no_tool_specialist_completions"]
+            if tool_totals is not None
+            else None
+        ),
+        scenarios_with_tool_use=(
+            tool_totals["selected_scenarios_with_tool_use"] if tool_totals is not None else None
+        ),
+        specialist_domains_with_tool_use=(
+            tool_totals["selected_specialist_domains_with_tool_use"]
+            if tool_totals is not None
+            else None
+        ),
+        execution_limit_hits=(
+            tool_totals["selected_execution_limit_hits"] if tool_totals is not None else None
+        ),
+        total_model_invocations=selected_attempt_count,
         disposition=disposition,
     )
 
@@ -737,43 +965,92 @@ def _terminal_stability(variant_runs: tuple[V06RunReport, ...]) -> dict[str, Any
 
 
 def _tool_aggregate(variant_runs: tuple[V06RunReport, ...]) -> dict[str, Any]:
-    total_tool_calls = 0
-    by_specialist: Counter[str] = Counter()
-    by_scenario: Counter[str] = Counter()
-    success = 0
-    failure = 0
-    no_tool_specialist_completions = 0
-    scenarios_with_tool_use: set[str] = set()
-    specialist_domains_with_tool_use: set[str] = set()
-    execution_limit_hits = 0
+    selected_total_tool_calls = 0
+    selected_by_specialist: Counter[str] = Counter()
+    selected_by_scenario: Counter[str] = Counter()
+    selected_success = 0
+    selected_failure = 0
+    selected_no_tool_specialist_completions = 0
+    selected_scenarios_with_tool_use: set[str] = set()
+    selected_specialist_domains_with_tool_use: set[str] = set()
+    selected_execution_limit_hits = 0
+
+    candidate_total_tool_calls = 0
+    candidate_by_specialist: Counter[str] = Counter()
+    candidate_by_scenario: Counter[str] = Counter()
+    candidate_success = 0
+    candidate_failure = 0
+    candidate_no_tool_specialist_completions = 0
+    candidate_scenarios_with_tool_use: set[str] = set()
+    candidate_specialist_domains_with_tool_use: set[str] = set()
+    candidate_execution_limit_hits = 0
     for run in variant_runs:
         for scenario in run.report.scenarios:
-            scenario_tool_calls = 0
-            for candidate in scenario.runtime.candidate_results:
-                for outcome in candidate.specialist_outcomes:
-                    by_specialist[outcome.trace.specialist_id] += outcome.trace.tool_call_count
-                    total_tool_calls += outcome.trace.tool_call_count
-                    scenario_tool_calls += outcome.trace.tool_call_count
-                    success += outcome.trace.tool_call_success_count
-                    failure += outcome.trace.tool_call_failure_count
-                    execution_limit_hits += 1 if outcome.trace.agent_execution_limit_hit else 0
-                    if outcome.trace.tool_call_count > 0:
-                        specialist_domains_with_tool_use.add(outcome.trace.domain.value)
-                    if outcome.decision is not None and outcome.trace.tool_call_count == 0:
-                        no_tool_specialist_completions += 1
-            by_scenario[scenario.scenario_id] += scenario_tool_calls
-            if scenario_tool_calls > 0:
-                scenarios_with_tool_use.add(scenario.scenario_id)
+            selected_candidate = _selected_candidate(scenario.runtime)
+            selected_outcomes = (
+                selected_candidate.specialist_outcomes if selected_candidate is not None else ()
+            )
+            candidate_outcomes = [
+                outcome
+                for candidate in scenario.runtime.candidate_results
+                for outcome in candidate.specialist_outcomes
+            ]
+            selected_scenario_tool_calls = 0
+            candidate_scenario_tool_calls = 0
+            for outcome in selected_outcomes:
+                selected_by_specialist[outcome.trace.specialist_id] += outcome.trace.tool_call_count
+                selected_total_tool_calls += outcome.trace.tool_call_count
+                selected_scenario_tool_calls += outcome.trace.tool_call_count
+                selected_success += outcome.trace.tool_call_success_count
+                selected_failure += outcome.trace.tool_call_failure_count
+                selected_execution_limit_hits += int(outcome.trace.agent_execution_limit_hit)
+                if outcome.trace.tool_call_count > 0:
+                    selected_specialist_domains_with_tool_use.add(outcome.trace.domain.value)
+                if outcome.decision is not None and outcome.trace.tool_call_count == 0:
+                    selected_no_tool_specialist_completions += 1
+            for outcome in candidate_outcomes:
+                candidate_by_specialist[outcome.trace.specialist_id] += (
+                    outcome.trace.tool_call_count
+                )
+                candidate_total_tool_calls += outcome.trace.tool_call_count
+                candidate_scenario_tool_calls += outcome.trace.tool_call_count
+                candidate_success += outcome.trace.tool_call_success_count
+                candidate_failure += outcome.trace.tool_call_failure_count
+                candidate_execution_limit_hits += int(outcome.trace.agent_execution_limit_hit)
+                if outcome.trace.tool_call_count > 0:
+                    candidate_specialist_domains_with_tool_use.add(outcome.trace.domain.value)
+                if outcome.decision is not None and outcome.trace.tool_call_count == 0:
+                    candidate_no_tool_specialist_completions += 1
+            if selected_scenario_tool_calls > 0:
+                selected_scenarios_with_tool_use.add(scenario.scenario_id)
+            if candidate_scenario_tool_calls > 0:
+                candidate_scenarios_with_tool_use.add(scenario.scenario_id)
+            selected_by_scenario[scenario.scenario_id] += selected_scenario_tool_calls
+            candidate_by_scenario[scenario.scenario_id] += candidate_scenario_tool_calls
     return {
-        "total_tool_calls": total_tool_calls,
-        "by_specialist": tuple(sorted(by_specialist.items())),
-        "by_scenario": tuple(sorted(by_scenario.items())),
-        "success": success,
-        "failure": failure,
-        "no_tool_specialist_completions": no_tool_specialist_completions,
-        "scenarios_with_tool_use": tuple(sorted(scenarios_with_tool_use)),
-        "specialist_domains_with_tool_use": tuple(sorted(specialist_domains_with_tool_use)),
-        "execution_limit_hits": execution_limit_hits,
+        "total_tool_calls": selected_total_tool_calls,
+        "selected_total_tool_calls": selected_total_tool_calls,
+        "selected_by_specialist": tuple(sorted(selected_by_specialist.items())),
+        "selected_by_scenario": tuple(sorted(selected_by_scenario.items())),
+        "selected_success": selected_success,
+        "selected_failure": selected_failure,
+        "selected_no_tool_specialist_completions": selected_no_tool_specialist_completions,
+        "selected_scenarios_with_tool_use": tuple(sorted(selected_scenarios_with_tool_use)),
+        "selected_specialist_domains_with_tool_use": tuple(
+            sorted(selected_specialist_domains_with_tool_use)
+        ),
+        "selected_execution_limit_hits": selected_execution_limit_hits,
+        "candidate_total_tool_calls": candidate_total_tool_calls,
+        "candidate_by_specialist": tuple(sorted(candidate_by_specialist.items())),
+        "candidate_by_scenario": tuple(sorted(candidate_by_scenario.items())),
+        "candidate_success": candidate_success,
+        "candidate_failure": candidate_failure,
+        "candidate_no_tool_specialist_completions": candidate_no_tool_specialist_completions,
+        "candidate_scenarios_with_tool_use": tuple(sorted(candidate_scenarios_with_tool_use)),
+        "candidate_specialist_domains_with_tool_use": tuple(
+            sorted(candidate_specialist_domains_with_tool_use)
+        ),
+        "candidate_execution_limit_hits": candidate_execution_limit_hits,
     }
 
 
