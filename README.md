@@ -51,6 +51,40 @@ That separation makes the project useful for architecture decisions instead of j
 - v0.6 retained the LangChain structured adapter, while the LangChain `create_agent` variant was rejected as the default after zero tool calls and no decision-quality improvement.
 - v0.7 retained LangGraph experimentally, then a post-hoc audit classified the comparison as `VALID_BUT_DIFFERENT_WORK_POLICY` because `12` of `30` scenario-runs short-circuited in deterministic preflight, skipping `60` specialist executions and yielding `90` LangGraph specialist invocations versus `150` imperative invocations.
 
+## Current Architecture
+
+> PartyPilot separates domain semantics from orchestration. Specialists execute independently, while deterministic coordination and hard constraints remain authoritative.
+
+```mermaid
+flowchart TD
+    Request[Party Request] --> Preflight[Deterministic Preflight]
+    Preflight -->|terminal hard-constraint outcome| Finalize[Finalize]
+    Preflight -->|fan out| Venue[VenueAgent]
+    Preflight -->|fan out| Catering[CateringSafetyAgent]
+    Preflight -->|fan out| Accessibility[AccessibilityAgent]
+    Preflight -->|fan out| Scheduling[SchedulingAgent]
+    Preflight -->|fan out| Budget[BudgetAgent]
+    Venue --> Coordinator[Deterministic Coordinator]
+    Catering --> Coordinator
+    Accessibility --> Coordinator
+    Scheduling --> Coordinator
+    Budget --> Coordinator
+    Coordinator -->|accept / reject| Finalize
+    Coordinator -->|targeted replan| Replan[Targeted Replan]
+    Replan -->|invalidate affected domains| Affected[Affected Specialists Only]
+    Affected --> Coordinator
+    Coordinator -->|human review| Review[Human Review\ninterrupt / checkpoint]
+    Review -->|same thread resume| Resume[Validated Resume]
+    Resume -->|validated review action| Finalize
+    Resume -->|bounded replan| Replan
+```
+
+LangGraph owns control flow; PartyPilot owns semantics.
+
+The imperative orchestration backend remains the compatibility/default comparison path.
+LangGraph is retained experimentally.
+Deterministic hard constraints remain authoritative.
+
 ## Negative Results
 
 Not every explored idea was promoted.
@@ -65,48 +99,30 @@ The clearest negative result is the v0.6 LangChain `create_agent` variant:
 
 That result is important because it shows the project is willing to reject more complex mechanisms when the evidence does not support them.
 
-## Current Architecture
-
-```mermaid
-flowchart TD
-    Request[Party request] --> Preflight[Deterministic preflight]
-    Preflight -->|terminal shortcut| Finalize[Finalize]
-    Preflight -->|fan out| Venue[Venue]
-    Preflight -->|fan out| Catering[Catering / Safety]
-    Preflight -->|fan out| Accessibility[Accessibility]
-    Preflight -->|fan out| Scheduling[Scheduling]
-    Preflight -->|fan out| Budget[Budget]
-    Venue --> Coordinator[Deterministic coordinator]
-    Catering --> Coordinator
-    Accessibility --> Coordinator
-    Scheduling --> Coordinator
-    Budget --> Coordinator
-    Coordinator -->|accept / reject| Finalize
-    Coordinator -->|targeted replan| Replan[Targeted replan]
-    Coordinator -->|human review| Human[Human review]
-    Replan --> Preflight
-    Human --> Finalize
-```
-
-LangGraph owns control flow; PartyPilot owns semantics.
-
-The current experimental orchestration path is v0.7 LangGraph.
-
-The imperative orchestration backend remains the compatibility/default comparison path.
-
-It has these responsibilities:
-
-- domain models define the meaning of plans, decisions, evidence, and specialist outputs
-- application services define the deterministic planning and evaluation logic
-- composition selects the specialist adapter and orchestration backend
-- LangGraph, when enabled, manages the control-flow substrate around the PartyPilot runtime
-
 ## Research Timeline
 
 - v0.4 deterministic multi-agent coordination: [canonical report](evals/results/v0_4/multi_agent/20260811T060908Z/v0_4_multi_agent.md)
 - v0.5 live LLM specialists: [canonical report](evals/results/v0_5/llm_multi_agent/20260812T060624Z/v0_5_llm_multi_agent.md)
 - v0.6 LangChain structured adapter: [canonical report](evals/results/v0_6/langchain/20260813T042641Z/v0_6_langchain_controlled_evaluation.md)
 - v0.7 LangGraph orchestration backend: [canonical report](evals/results/v0_7/langgraph/20260813T164446Z/20260813T164446Z/v0_7_controlled_orchestration_evaluation.md)
+
+## Research Evolution
+
+> baseline -> measured failure -> capability -> evaluation -> disposition
+>
+> evidence before complexity
+
+```mermaid
+flowchart LR
+    V01[v0.1 Baselines\nQuestion: simple planners?\nBASELINE] --> V02[v0.2 Evidence constraints\nQuestion: evidence grounding?\nRETAIN]
+    V02 --> V03[v0.3 Stateful replanning\nQuestion: decomposition/replanning?\nRETAIN]
+    V03 --> V04[v0.4 Deterministic multi-agent coordination\nQuestion: cross-domain conflicts?\nRETAIN\n0.600 -> 1.000 final accuracy]
+    V04 --> V05[v0.5 Live LLM specialists\nQuestion: independent specialists?\nRETAIN EXPERIMENTALLY]
+    V05 --> V06[v0.6 LangChain comparison\nstructured adapter: RETAIN\ncreate_agent: REJECT AS DEFAULT\n0 tool calls]
+    V06 --> V07[v0.7 LangGraph orchestration\nQuestion: graph orchestration?\nRETAIN EXPERIMENTALLY\n0.750 -> 0.625 arbitration]
+```
+
+PartyPilot adds one capability at a time and keeps it only when the measured evidence justifies the added complexity.
 
 ## System Evolution
 
