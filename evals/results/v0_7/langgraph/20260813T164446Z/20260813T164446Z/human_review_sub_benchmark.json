@@ -1,0 +1,17 @@
+{
+  "benchmark_name": "deterministic human-review fixture",
+  "interrupt_emitted_count": 4,
+  "checkpoint_created_count": 4,
+  "execution_id_retained_count": 4,
+  "resume_from_same_execution_count": 4,
+  "stale_response_rejected_count": 2,
+  "invalid_response_rejected_count": 2,
+  "valid_approval_routed_count": 1,
+  "valid_rejection_routed_count": 1,
+  "valid_replan_routed_count": 1,
+  "deterministic_hard_constraints_preserved_count": 4,
+  "passed": true,
+  "notes": [
+    "Deterministic offline fixture used to validate checkpointed interrupt/resume semantics without manual interaction."
+  ]
+}

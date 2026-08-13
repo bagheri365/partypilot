@@ -1,0 +1,29 @@
+{
+  "benchmark_name": "deterministic orchestration/replan fixture",
+  "scenario_count": 4,
+  "targeted_domain_selection_correct_count": 4,
+  "untouched_specialists_preserved_count": 4,
+  "stale_specialist_outcome_replaced_count": 4,
+  "planning_state_revision_progression_count": 4,
+  "coordinator_rerun_count": 2,
+  "graph_termination_count": 4,
+  "loop_bound_handling_count": 1,
+  "route_counts": [
+    [
+      "finalize",
+      2
+    ],
+    [
+      "human_review",
+      1
+    ],
+    [
+      "replan",
+      1
+    ]
+  ],
+  "passed": true,
+  "notes": [
+    "Deterministic offline fixture used to keep targeted replanning and loop-bound handling under regression coverage."
+  ]
+}
