@@ -86,6 +86,25 @@ def canonical_specialist_name(domain: SpecialistDomain) -> str:
     return specialist_identity_for_domain(domain).specialist_name
 
 
+def specialist_identity_prompt_lines(domain: SpecialistDomain) -> tuple[str, ...]:
+    """Return canonical prompt lines that pin a specialist to its typed identity."""
+
+    identity = specialist_identity_for_domain(domain)
+    return (
+        (
+            "Canonical specialist identity: "
+            f'domain="{identity.domain.value}", '
+            f'specialist_name="{identity.specialist_name}", '
+            f'specialist_id="{identity.specialist_id}".'
+        ),
+        f'specialist_id MUST be exactly "{identity.specialist_id}".',
+        (
+            "Never use the specialist_name, the class name, or the domain enum value "
+            f'"{identity.domain.value}" as specialist_id.'
+        ),
+    )
+
+
 class SpecialistFailureKind(StrEnum):
     """Typed failure categories for specialist-agent execution."""
 
@@ -96,6 +115,28 @@ class SpecialistFailureKind(StrEnum):
     SPECIALIST_DOMAIN_VALIDATION_ERROR = "specialist_domain_validation_error"
     SPECIALIST_EXECUTION_ERROR = "specialist_execution_error"
     COORDINATOR_ERROR = "coordinator_error"
+
+
+class SpecialistAdapterVariant(StrEnum):
+    """Typed adapter variants for specialist execution traces."""
+
+    NATIVE_OLLAMA = "native_ollama"
+    LANGCHAIN_CHATOLLAMA = "langchain_chatollama"
+    LANGCHAIN_AGENT = "langchain_agent"
+
+
+class SpecialistToolCallTrace(BaseModel):
+    """Execution trace for a single specialist tool invocation."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    specialist_id: NonEmptyString
+    tool_name: NonEmptyString
+    request_summary: NonEmptyString | None = None
+    invocation_index: int = Field(ge=1)
+    success: bool
+    latency_ms: float = Field(ge=0)
+    error_kind: NonEmptyString | None = None
 
 
 class SpecialistDecisionEvidenceReference(BaseModel):
@@ -188,12 +229,18 @@ class SpecialistExecutionTrace(BaseModel):
     specialist_id: NonEmptyString
     specialist_name: NonEmptyString
     domain: SpecialistDomain
+    adapter_variant: SpecialistAdapterVariant = SpecialistAdapterVariant.NATIVE_OLLAMA
     model_name: NonEmptyString | None = None
     started_at: datetime
     completed_at: datetime
     latency_ms: float = Field(ge=0)
     input_scope_summary: tuple[NonEmptyString, ...] = ()
     evidence_document_ids: tuple[NonEmptyString, ...] = ()
+    tool_call_count: int = Field(default=0, ge=0)
+    tool_call_success_count: int = Field(default=0, ge=0)
+    tool_call_failure_count: int = Field(default=0, ge=0)
+    tool_call_traces: tuple[SpecialistToolCallTrace, ...] = ()
+    agent_execution_limit_hit: bool = False
     validation_succeeded: bool
     recommendation_status: ArbitrationOutcome | None = None
     retry_count: int = Field(ge=0)

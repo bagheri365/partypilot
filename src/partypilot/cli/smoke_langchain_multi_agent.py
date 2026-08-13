@@ -1,4 +1,4 @@
-"""Small live smoke test for PartyPilot's v0.5 multi-agent runtime."""
+"""Small live smoke test for PartyPilot's LangChain multi-agent runtime."""
 
 from __future__ import annotations
 
@@ -6,26 +6,24 @@ import argparse
 import sys
 from collections.abc import Sequence
 
-from partypilot.adapters import OllamaAdapter, UrllibHttpTransport
-from partypilot.application import v04_multi_agent as v04
 from partypilot.cli.eval_baseline import _ollama_config
-from partypilot.composition.multi_agent_runtime import build_live_multi_agent_runtime
+from partypilot.cli.smoke_multi_agent import DEFAULT_SMOKE_SCENARIO_IDS, _smoke_scenarios
+from partypilot.composition.multi_agent_runtime import (
+    SpecialistAdapterKind,
+    build_live_multi_agent_runtime,
+)
 from partypilot.domain import (
     CandidateEvaluationResult,
-    CapabilityBoundaryScenario,
     MultiAgentPlanningRuntimeResult,
     MultiAgentSmokeRow,
     SpecialistExecutionOutcome,
 )
 
-DEFAULT_SMOKE_SCENARIO_IDS = (
-    "cap-boundary-41-venue-caterer-dependency",
-    "cap-boundary-59-conflicting-agents-evidence",
-)
-
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Run a tiny live v0.5 multi-agent smoke test.")
+    parser = argparse.ArgumentParser(
+        description="Run a tiny live LangChain v0.6b multi-agent smoke test."
+    )
     parser.add_argument("--base-url", default=None, help="Override PARTYPILOT_OLLAMA_BASE_URL.")
     parser.add_argument("--model", default=None, help="Override PARTYPILOT_OLLAMA_MODEL.")
     parser.add_argument(
@@ -68,23 +66,28 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
     except ValueError as exc:  # pragma: no cover - exercised via CLI tests
         print(
-            f"ERROR: v0.5 multi-agent smoke configuration failed. Details: {exc}", file=sys.stderr
+            f"ERROR: v0.6b LangChain multi-agent smoke configuration failed. Details: {exc}",
+            file=sys.stderr,
         )
         return 1
 
     try:
-        provider = OllamaAdapter(config, UrllibHttpTransport())
         runtime = build_live_multi_agent_runtime(
-            provider,
             timeout_seconds=config.timeout_seconds,
             model_name=config.model,
+            adapter_kind=SpecialistAdapterKind.LANGCHAIN,
+            ollama_config=config,
         )
-        scenarios = _smoke_scenarios(args.scenario_id)
+        scenarios = _smoke_scenarios(args.scenario_id or DEFAULT_SMOKE_SCENARIO_IDS)
     except Exception as exc:  # pragma: no cover - exercised via CLI tests
-        print(f"ERROR: v0.5 multi-agent smoke setup failed. Details: {exc}", file=sys.stderr)
+        print(
+            f"ERROR: v0.6b LangChain multi-agent smoke setup failed. Details: {exc}",
+            file=sys.stderr,
+        )
         return 1
 
-    print("# PartyPilot v0.5 Multi-Agent Smoke Test")
+    print("# PartyPilot v0.6b LangChain Multi-Agent Smoke Test")
+    print(f"Adapter kind: {SpecialistAdapterKind.LANGCHAIN.value}")
     print(f"Provider I/O timeout: {config.timeout_seconds:.1f}s")
     print(f"Ollama context budget: {getattr(config, 'num_ctx', 8192)} tokens")
     print(f"Model: {config.model}")
@@ -118,16 +121,18 @@ def main(argv: Sequence[str] | None = None) -> int:
 
         for outcome in candidate.specialist_outcomes:
             row = _smoke_row(outcome)
+            adapter_variant = outcome.trace.adapter_variant.value
             if outcome.decision is None:
                 print(
                     "  - "
-                    f"{row.specialist_name} | FAILED | {row.status} | "
+                    f"{row.specialist_name} | adapter={adapter_variant} | FAILED | {row.status} | "
                     f"{outcome.trace.failure_reason or 'unknown failure'}"
                 )
             else:
                 print(
                     "  - "
-                    f"{row.specialist_name}: status={row.status}, "
+                    f"{row.specialist_name}: adapter={adapter_variant}, "
+                    f"status={row.status}, "
                     f"recommendations={row.recommendation_count}, "
                     f"evidence={', '.join(row.evidence_ids) or 'none'}, "
                     f"latency_ms={row.latency_ms:.1f}, "
@@ -140,19 +145,6 @@ def main(argv: Sequence[str] | None = None) -> int:
     if exit_code == 0:
         print("Smoke test passed.")
     return exit_code
-
-
-def _smoke_scenarios(scenario_ids: Sequence[str] | None) -> tuple[CapabilityBoundaryScenario, ...]:
-    benchmark = v04.load_v04_multi_agent_benchmark()
-    requested = tuple(scenario_ids) if scenario_ids else DEFAULT_SMOKE_SCENARIO_IDS
-    scenarios_by_id = {scenario.scenario.scenario_id: scenario for scenario in benchmark}
-    scenarios = []
-    for scenario_id in requested:
-        scenario = scenarios_by_id.get(scenario_id)
-        if scenario is None:
-            raise ValueError(f"unknown smoke scenario ID: {scenario_id}")
-        scenarios.append(scenario)
-    return tuple(scenarios)
 
 
 def _selected_candidate(

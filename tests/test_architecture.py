@@ -8,6 +8,9 @@ PACKAGE_ROOT = Path(__file__).parents[1] / "src" / "partypilot"
 
 FORBIDDEN_DOMAIN_PREFIXES = (
     "fastapi",
+    "langchain",
+    "langchain_core",
+    "langchain_ollama",
     "langgraph",
     "qdrant_client",
     "ollama",
@@ -17,6 +20,19 @@ FORBIDDEN_DOMAIN_PREFIXES = (
 )
 
 FORBIDDEN_APPLICATION_PREFIXES = (
+    "langchain",
+    "langchain_core",
+    "langchain_ollama",
+    "langgraph",
+    "partypilot.adapters",
+    "partypilot.composition",
+)
+
+FORBIDDEN_PORT_PREFIXES = (
+    "langchain",
+    "langchain_core",
+    "langchain_ollama",
+    "langgraph",
     "partypilot.adapters",
     "partypilot.composition",
 )
@@ -99,6 +115,15 @@ def test_application_does_not_depend_on_adapters_or_composition() -> None:
         "application",
         prefixes=FORBIDDEN_APPLICATION_PREFIXES,
         reason="application must depend on ports/contracts rather than concrete infrastructure",
+    )
+    assert not violations, _format_violations(violations)
+
+
+def test_ports_do_not_depend_on_langchain_or_composition() -> None:
+    violations = _scan_package_area(
+        "ports",
+        prefixes=FORBIDDEN_PORT_PREFIXES,
+        reason="ports must remain framework-neutral contracts",
     )
     assert not violations, _format_violations(violations)
 

@@ -72,6 +72,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Override PARTYPILOT_OLLAMA_TIMEOUT_SECONDS for the live Ollama provider.",
     )
     parser.add_argument(
+        "--num-ctx",
+        type=int,
+        default=None,
+        help="Override PARTYPILOT_OLLAMA_NUM_CTX for the live Ollama provider.",
+    )
+    parser.add_argument(
         "--max-retries",
         type=int,
         default=None,
@@ -94,12 +100,14 @@ def build_live_single_pass_planner(
     base_url: str | None,
     timeout_seconds: float | None,
     max_retries: int | None,
+    num_ctx: int | None,
 ) -> tuple[SinglePassLLMPlanner, str | None]:
     config = _ollama_config(
         model=model,
         base_url=base_url,
         timeout_seconds=timeout_seconds,
         max_retries=max_retries,
+        num_ctx=num_ctx,
     )
     return SinglePassLLMPlanner(OllamaAdapter(config, UrllibHttpTransport())), config.model
 
@@ -110,6 +118,7 @@ def _ollama_config(
     base_url: str | None,
     timeout_seconds: float | None,
     max_retries: int | None,
+    num_ctx: int | None = None,
 ) -> OllamaConfig:
     try:
         env_config = OllamaConfig.from_env()
@@ -123,6 +132,7 @@ def _ollama_config(
             model=model,
             base_url=base_url or "http://localhost:11434",
             timeout_seconds=timeout_seconds or 30.0,
+            num_ctx=num_ctx if num_ctx is not None else 8192,
             max_retries=max_retries if max_retries is not None else 2,
         )
     else:
@@ -131,6 +141,7 @@ def _ollama_config(
                 **({"model": model} if model is not None else {}),
                 **({"base_url": base_url} if base_url is not None else {}),
                 **({"timeout_seconds": timeout_seconds} if timeout_seconds is not None else {}),
+                **({"num_ctx": num_ctx} if num_ctx is not None else {}),
                 **({"max_retries": max_retries} if max_retries is not None else {}),
             }
         )
@@ -287,6 +298,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             base_url=args.base_url,
             timeout_seconds=args.timeout_seconds,
             max_retries=args.max_retries,
+            num_ctx=args.num_ctx,
         )
         metadata = _experiment_metadata(
             split=split,

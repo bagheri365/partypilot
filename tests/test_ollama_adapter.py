@@ -37,6 +37,7 @@ def config(**overrides: object) -> OllamaConfig:
         "base_url": "http://ollama.test:11434",
         "model": "llama-test",
         "timeout_seconds": 12.0,
+        "num_ctx": 8192,
         "max_retries": 2,
     }
     values.update(overrides)
@@ -47,6 +48,7 @@ def test_config_loads_from_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("PARTYPILOT_OLLAMA_MODEL", "qwen-test")
     monkeypatch.setenv("PARTYPILOT_OLLAMA_BASE_URL", "http://example.test:11434/")
     monkeypatch.setenv("PARTYPILOT_OLLAMA_TIMEOUT_SECONDS", "9")
+    monkeypatch.setenv("PARTYPILOT_OLLAMA_NUM_CTX", "4096")
     monkeypatch.setenv("PARTYPILOT_OLLAMA_MAX_RETRIES", "1")
 
     loaded = OllamaConfig.from_env()
@@ -54,6 +56,7 @@ def test_config_loads_from_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     assert loaded.model == "qwen-test"
     assert loaded.base_url == "http://example.test:11434"
     assert loaded.timeout_seconds == 9
+    assert loaded.num_ctx == 4096
     assert loaded.max_retries == 1
 
 
@@ -67,6 +70,8 @@ def test_config_requires_explicit_model(monkeypatch: pytest.MonkeyPatch) -> None
 def test_config_rejects_invalid_timeout_and_retry_bounds() -> None:
     with pytest.raises(ValidationError):
         config(timeout_seconds=0)
+    with pytest.raises(ValidationError):
+        config(num_ctx=0)
     with pytest.raises(ValidationError):
         config(max_retries=6)
 
@@ -107,6 +112,7 @@ def test_generate_sends_model_prompts_schema_and_uses_bounded_timeout() -> None:
         "stream": False,
         "system": "Return JSON",
         "format": {"type": "object"},
+        "options": {"num_ctx": 8192},
     }
 
 
@@ -125,7 +131,7 @@ def test_generate_retries_connection_failure_then_succeeds() -> None:
     assert len(transport.calls) == 2
 
 
-def test_generate_stops_after_bounded_retries() -> None:
+def test_generate_does_not_retry_timeout_failures() -> None:
     transport = FakeTransport(
         [OllamaTimeoutError("slow"), OllamaTimeoutError("slow"), OllamaTimeoutError("slow")]
     )
@@ -134,7 +140,7 @@ def test_generate_stops_after_bounded_retries() -> None:
     with pytest.raises(OllamaTimeoutError, match="slow"):
         adapter.generate(GenerationRequest(prompt="hello"), timeout_seconds=5)
 
-    assert len(transport.calls) == 3
+    assert len(transport.calls) == 1
 
 
 def test_generate_does_not_retry_provider_response_errors() -> None:

@@ -2,6 +2,26 @@
 
 from partypilot.adapters.bm25_evidence_retriever import BM25EvidenceRetriever
 from partypilot.adapters.in_memory_resource_store import DEFAULT_RESOURCES, InMemoryResourceStore
+from partypilot.adapters.langchain_agent_specialist_agents import (
+    LangChainAgentAccessibilityAgent,
+    LangChainAgentBaseSpecialistAgent,
+    LangChainAgentBudgetAgent,
+    LangChainAgentCateringSafetyAgent,
+    LangChainAgentSchedulingAgent,
+    LangChainAgentVenueAgent,
+    ToolCallRecorder,
+    build_langchain_agent_specialist_agents,
+)
+from partypilot.adapters.langchain_specialist_agents import (
+    LangChainAccessibilityAgent,
+    LangChainBaseSpecialistAgent,
+    LangChainBudgetAgent,
+    LangChainCateringSafetyAgent,
+    LangChainSchedulingAgent,
+    LangChainVenueAgent,
+    SchedulingOperationsAgent,
+    build_langchain_specialist_agents,
+)
 from partypilot.adapters.llm_constraint_extractor import (
     LLMConstraintExtractor,
     LLMConstraintExtractorError,
@@ -46,6 +66,18 @@ __all__ = [
     "LLMConstraintExtractorError",
     "LLMConstraintExtractorOutputError",
     "LLMConstraintExtractorProviderError",
+    "LangChainAccessibilityAgent",
+    "LangChainAgentAccessibilityAgent",
+    "LangChainAgentBaseSpecialistAgent",
+    "LangChainAgentBudgetAgent",
+    "LangChainAgentCateringSafetyAgent",
+    "LangChainAgentSchedulingAgent",
+    "LangChainAgentVenueAgent",
+    "LangChainBaseSpecialistAgent",
+    "LangChainBudgetAgent",
+    "LangChainCateringSafetyAgent",
+    "LangChainSchedulingAgent",
+    "LangChainVenueAgent",
     "OllamaAdapter",
     "OllamaConfig",
     "OllamaConnectionError",
@@ -56,8 +88,12 @@ __all__ = [
     "RRFEvidenceRetriever",
     "RetryExhaustedError",
     "RetryPolicy",
+    "SchedulingOperationsAgent",
     "SemanticEvidenceRetriever",
     "SemanticRetrievalError",
+    "ToolCallRecorder",
     "UrllibHttpTransport",
+    "build_langchain_agent_specialist_agents",
+    "build_langchain_specialist_agents",
     "call_with_retry",
 ]

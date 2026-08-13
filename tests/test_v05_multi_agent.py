@@ -7,13 +7,13 @@ from datetime import date
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, cast
 
 import pytest
 from pydantic import ValidationError
 
 from partypilot.adapters.llm_specialist_agents import build_specialist_agents
-from partypilot.adapters.ollama import OllamaConnectionError, OllamaTimeoutError
+from partypilot.adapters.ollama import OllamaConfig, OllamaConnectionError, OllamaTimeoutError
 from partypilot.application import multi_agent_runtime as runtime_module
 from partypilot.application import v04_multi_agent as v04
 from partypilot.application.multi_agent_runtime import (
@@ -21,7 +21,7 @@ from partypilot.application.multi_agent_runtime import (
     run_v05_multi_agent_experiment,
 )
 from partypilot.cli import eval_v05_llm_multi_agent as eval_v05
-from partypilot.cli import smoke_multi_agent
+from partypilot.cli import smoke_langchain_agents, smoke_langchain_multi_agent, smoke_multi_agent
 from partypilot.composition.multi_agent_runtime import build_live_multi_agent_runtime
 from partypilot.domain import (
     SPECIALIST_IDENTITIES,
@@ -40,6 +40,7 @@ from partypilot.domain import (
     PartyRequest,
     ResourceCategory,
     ScenarioCategory,
+    SpecialistAdapterVariant,
     SpecialistDecisionEnvelope,
     SpecialistDecisionPayload,
     SpecialistDomain,
@@ -456,8 +457,12 @@ def test_build_live_multi_agent_runtime_uses_canonical_schema_and_examples() -> 
         assert "The recommendation field is free-text reasoning, not an enum." in system_prompt
         assert "specialist_id must equal the input specialist_id." in system_prompt
         assert "domain must equal the input domain." in system_prompt
-        assert 'Canonical specialist_id: "' in system_prompt
+        assert "Canonical specialist identity:" in system_prompt
         assert 'specialist_id MUST be exactly "' in system_prompt
+        assert (
+            "Never use the specialist_name, the class name, or the domain enum value"
+            in system_prompt
+        )
         assert "Valid example:" in system_prompt
         assert '"decision"' in system_prompt
         assert '"specialist_id"' in system_prompt
@@ -1058,6 +1063,10 @@ def test_accepting_validation_response_may_omit_recommended_resources() -> None:
     assert result.execution_traces
     assert all(trace.validation_succeeded for trace in result.execution_traces)
     assert all(
+        trace.adapter_variant is SpecialistAdapterVariant.NATIVE_OLLAMA
+        for trace in result.execution_traces
+    )
+    assert all(
         outcome.decision is not None and outcome.decision.status is ArbitrationOutcome.ACCEPT
         for candidate in result.candidate_results
         for outcome in candidate.specialist_outcomes
@@ -1095,6 +1104,7 @@ def test_smoke_multi_agent_cli_reports_success(
     fake_config = SimpleNamespace(
         model="fake-model",
         timeout_seconds=12.0,
+        num_ctx=8192,
         max_retries=2,
     )
     monkeypatch.setattr(smoke_multi_agent, "_ollama_config", lambda **kwargs: fake_config)
@@ -1108,6 +1118,8 @@ def test_smoke_multi_agent_cli_reports_success(
     captured = capsys.readouterr()
     assert exit_code == 0
     assert "PartyPilot v0.5 Multi-Agent Smoke Test" in captured.out
+    assert "Provider I/O timeout: 12.0s" in captured.out
+    assert "Ollama context budget: 8192 tokens" in captured.out
     assert "Model: fake-model" in captured.out
     assert "Scenario: cap-boundary-41-venue-caterer-dependency" in captured.out
     assert "Smoke test passed." in captured.out
@@ -1124,6 +1136,7 @@ def test_smoke_multi_agent_cli_reports_provider_failure_with_classification(
     fake_config = SimpleNamespace(
         model="fake-model",
         timeout_seconds=12.0,
+        num_ctx=8192,
         max_retries=2,
     )
     monkeypatch.setattr(smoke_multi_agent, "_ollama_config", lambda **kwargs: fake_config)
@@ -1136,10 +1149,243 @@ def test_smoke_multi_agent_cli_reports_provider_failure_with_classification(
 
     captured = capsys.readouterr()
     assert exit_code == 1
+    assert "Provider I/O timeout: 12.0s" in captured.out
+    assert "Ollama context budget: 8192 tokens" in captured.out
     assert (
         "FAILED | PROVIDER_CONNECTION_ERROR | OllamaConnectionError: Could not connect to Ollama"
         in captured.out
     )
+
+
+def test_smoke_langchain_multi_agent_cli_reports_success(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    fake_outcome = SimpleNamespace(
+        trace=SimpleNamespace(
+            specialist_name="VenueAgent",
+            adapter_variant=SimpleNamespace(value="langchain_chatollama"),
+            evidence_document_ids=(),
+            validation_succeeded=True,
+            retry_count=0,
+            latency_ms=1.2,
+        ),
+        decision=SimpleNamespace(
+            status=SimpleNamespace(value="ACCEPT"),
+            recommended_resource_ids=(),
+            evidence_references=(),
+        ),
+        failure_kind=None,
+    )
+    fake_candidate = SimpleNamespace(candidate_resource_ids=(), specialist_outcomes=(fake_outcome,))
+    fake_result = SimpleNamespace(
+        final_result=SimpleNamespace(
+            selected_resource_ids=(),
+            feasibility_outcome=SimpleNamespace(value="FEASIBLE"),
+        ),
+        candidate_results=(fake_candidate,),
+    )
+    fake_config = SimpleNamespace(
+        model="fake-model",
+        timeout_seconds=12.0,
+        num_ctx=8192,
+        max_retries=2,
+    )
+
+    class FakeRuntime:
+        def plan_scenario(self, scenario: Any) -> Any:
+            return fake_result
+
+    monkeypatch.setattr(smoke_langchain_multi_agent, "_ollama_config", lambda **kwargs: fake_config)
+    monkeypatch.setattr(
+        smoke_langchain_multi_agent,
+        "build_live_multi_agent_runtime",
+        lambda **kwargs: FakeRuntime(),
+    )
+    monkeypatch.setattr(
+        smoke_langchain_multi_agent,
+        "_smoke_scenarios",
+        lambda scenario_ids: (_scenario(),),
+    )
+    monkeypatch.setattr(
+        smoke_langchain_multi_agent,
+        "_selected_candidate",
+        lambda result: fake_candidate,
+    )
+
+    exit_code = smoke_langchain_multi_agent.main(
+        ["--scenario-id", "cap-boundary-41-venue-caterer-dependency"]
+    )
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "PartyPilot v0.6b LangChain Multi-Agent Smoke Test" in captured.out
+    assert "Adapter kind: langchain" in captured.out
+    assert "Provider I/O timeout: 12.0s" in captured.out
+    assert "Ollama context budget: 8192 tokens" in captured.out
+    assert "Scenario: cap-boundary-41-venue-caterer-dependency" in captured.out
+    assert "adapter=langchain_chatollama" in captured.out
+    assert "Smoke test passed." in captured.out
+
+
+def test_smoke_langchain_agents_cli_reports_tool_usage(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    fake_outcome = SimpleNamespace(
+        trace=SimpleNamespace(
+            specialist_name="VenueAgent",
+            adapter_variant=SimpleNamespace(value="langchain_agent"),
+            evidence_document_ids=("doc-venue-alpha",),
+            validation_succeeded=True,
+            retry_count=0,
+            latency_ms=1.2,
+            tool_call_count=2,
+            tool_call_traces=(
+                SimpleNamespace(tool_name="inspect_selected_venue", success=True, error_kind=None),
+                SimpleNamespace(
+                    tool_name="get_allowed_venue_evidence", success=True, error_kind=None
+                ),
+            ),
+            agent_execution_limit_hit=False,
+            failure_reason=None,
+        ),
+        decision=SimpleNamespace(
+            status=SimpleNamespace(value="ACCEPT"),
+            recommended_resource_ids=(),
+            evidence_references=(),
+        ),
+        failure_kind=None,
+    )
+    fake_candidate = SimpleNamespace(candidate_resource_ids=(), specialist_outcomes=(fake_outcome,))
+    fake_result = SimpleNamespace(
+        final_result=SimpleNamespace(
+            selected_resource_ids=(),
+            feasibility_outcome=SimpleNamespace(value="FEASIBLE"),
+        ),
+        candidate_results=(fake_candidate,),
+    )
+    fake_config = SimpleNamespace(
+        model="fake-model",
+        timeout_seconds=12.0,
+        num_ctx=8192,
+        max_retries=2,
+    )
+
+    class FakeRuntime:
+        def plan_scenario(self, scenario: Any) -> Any:
+            return fake_result
+
+    monkeypatch.setattr(smoke_langchain_agents, "_ollama_config", lambda **kwargs: fake_config)
+    monkeypatch.setattr(
+        smoke_langchain_agents,
+        "build_live_multi_agent_runtime",
+        lambda **kwargs: FakeRuntime(),
+    )
+    monkeypatch.setattr(
+        smoke_langchain_agents,
+        "_smoke_scenarios",
+        lambda scenario_ids: (_scenario(),),
+    )
+    monkeypatch.setattr(
+        smoke_langchain_agents,
+        "_selected_candidate",
+        lambda result: fake_candidate,
+    )
+
+    exit_code = smoke_langchain_agents.main(
+        ["--scenario-id", "cap-boundary-41-venue-caterer-dependency"]
+    )
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "PartyPilot v0.6c LangChain Agent Smoke Test" in captured.out
+    assert "Adapter kind: langchain_agent" in captured.out
+    assert "Provider I/O timeout: 12.0s" in captured.out
+    assert "Ollama context budget: 8192 tokens" in captured.out
+    assert "Agent execution bound: 8" in captured.out
+    assert "Tools invoked: yes" in captured.out
+    assert "tool_calls=2" in captured.out
+    assert "agent_limit_hit=False" in captured.out
+    assert "Smoke test passed." in captured.out
+
+
+def test_smoke_langchain_agents_cli_diagnostic_reports_tool_request_summary(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    fake_config = OllamaConfig(
+        base_url="http://localhost:11434",
+        model="fake-model",
+        timeout_seconds=12.0,
+        num_ctx=8192,
+        max_retries=0,
+    )
+    fake_trace = SimpleNamespace(
+        validation_succeeded=True,
+        agent_execution_limit_hit=False,
+        tool_call_count=1,
+        tool_call_traces=(
+            SimpleNamespace(
+                tool_name="inspect_selected_resource_accessibility",
+                request_summary="resource_id=venue-alpha",
+                success=True,
+                error_kind=None,
+            ),
+        ),
+        failure_reason=None,
+    )
+    fake_outcome = SimpleNamespace(
+        trace=fake_trace,
+        raw_structured_output={"decision": {"status": "ACCEPT"}},
+        decision=SimpleNamespace(
+            status=SimpleNamespace(value="ACCEPT"),
+            evidence_references=(),
+        ),
+    )
+    fake_specialist = SimpleNamespace(
+        specialist_id="accessibility",
+        run=lambda agent_input: fake_outcome,
+    )
+
+    monkeypatch.setattr(
+        smoke_langchain_agents, "_smoke_scenarios", lambda scenario_ids: (_scenario(),)
+    )
+    monkeypatch.setattr(
+        smoke_langchain_agents,
+        "build_specialist_agents",
+        lambda **kwargs: (fake_specialist,),
+    )
+    smoke_module = cast(Any, smoke_langchain_agents)
+    monkeypatch.setattr(
+        smoke_module.runtime_module,
+        "_build_planning_state",
+        lambda scenario, candidate_resources: SimpleNamespace(),
+    )
+    monkeypatch.setattr(
+        smoke_module.runtime_module,
+        "_specialist_input",
+        lambda **kwargs: SimpleNamespace(),
+    )
+    monkeypatch.setattr(
+        smoke_module.v04,
+        "_candidate_combinations",
+        lambda scenario: iter([("venue-alpha", "caterer-alpha", "activity-alpha")]),
+    )
+
+    exit_code = smoke_langchain_agents._run_tool_necessity_diagnostic(
+        config=fake_config,
+        scenario_id="cap-boundary-59-conflicting-agents-evidence",
+        specialist_id="accessibility",
+    )
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "Tool-Necessity Diagnostic" in captured.out
+    assert "Diagnostic specialist_id: accessibility" in captured.out
+    assert "Tool calls: 1" in captured.out
+    assert "request=resource_id=venue-alpha" in captured.out
+    assert "Diagnostic passed." in captured.out
 
 
 def test_runtime_classifies_provider_timeout() -> None:
@@ -1201,6 +1447,10 @@ def test_runtime_completes_with_one_failed_specialist_and_four_successful_specia
 
     assert result.execution_traces
     assert len(result.execution_traces) == len(result.candidate_results) * 5
+    assert all(
+        trace.adapter_variant is SpecialistAdapterVariant.NATIVE_OLLAMA
+        for trace in result.execution_traces
+    )
     assert any(
         outcome.failure_kind is SpecialistFailureKind.PROVIDER_CONNECTION_ERROR
         for candidate in result.candidate_results
@@ -1268,6 +1518,7 @@ def test_eval_v05_cli_writes_artifacts(
     fake_config = SimpleNamespace(
         model="fake-model",
         timeout_seconds=12.0,
+        num_ctx=8192,
         max_retries=2,
     )
     monkeypatch.setattr(eval_v05, "_ollama_config", lambda **kwargs: fake_config)

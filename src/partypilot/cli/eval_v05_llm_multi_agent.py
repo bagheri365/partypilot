@@ -39,6 +39,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Override PARTYPILOT_OLLAMA_TIMEOUT_SECONDS.",
     )
     parser.add_argument(
+        "--num-ctx",
+        type=int,
+        default=None,
+        help="Override PARTYPILOT_OLLAMA_NUM_CTX.",
+    )
+    parser.add_argument(
         "--max-retries",
         type=int,
         default=None,
@@ -64,6 +70,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             base_url=args.base_url,
             timeout_seconds=args.timeout_seconds,
             max_retries=args.max_retries,
+            num_ctx=args.num_ctx,
         )
         provider = OllamaAdapter(config, UrllibHttpTransport())
         runtime = build_live_multi_agent_runtime(

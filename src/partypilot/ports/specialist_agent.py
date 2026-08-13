@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 from partypilot.domain.coordination import SpecialistDomain
 from partypilot.domain.multi_agent import (
@@ -11,6 +11,7 @@ from partypilot.domain.multi_agent import (
 )
 
 
+@runtime_checkable
 class SpecialistAgent(Protocol):
     """Port for a single typed specialist agent."""
 

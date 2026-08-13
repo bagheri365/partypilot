@@ -23,6 +23,16 @@ PartyPilot v0.2 intentionally does not yet include:
 - MCP or A2A integrations
 - production deployment infrastructure
 
+## v0.6a Adapter Foundation
+
+PartyPilot v0.6a begins the specialist model-execution adapter layer for the v0.5 multi-agent runtime.
+
+- The PartyPilot `SpecialistAgent` port remains the architectural boundary.
+- Native Ollama specialists remain available as the baseline comparator.
+- LangChain support is introduced only inside adapter/composition code.
+- The first LangChain path uses `langchain_ollama.ChatOllama` with structured output against PartyPilot's typed `SpecialistDecisionEnvelope`.
+- `create_agent` is intentionally deferred until tools are introduced.
+
 ## Requirements
 
 - Python 3.12+

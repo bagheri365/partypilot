@@ -38,7 +38,7 @@ from partypilot.domain import (
     SpecialistExecutionTrace,
     SpecialistFailureKind,
 )
-from partypilot.domain.multi_agent import SpecialistAgentInput
+from partypilot.domain.multi_agent import SpecialistAdapterVariant, SpecialistAgentInput
 from partypilot.domain.resources import Resource, ResourceCategory
 from partypilot.ports.specialist_agent import SpecialistAgent
 
@@ -1457,6 +1457,11 @@ def _run_specialist_invocation(
                 specialist_id=agent_input.specialist_id,
                 specialist_name=agent_input.specialist_name,
                 domain=agent_input.domain,
+                adapter_variant=getattr(
+                    specialist,
+                    "adapter_variant",
+                    SpecialistAdapterVariant.NATIVE_OLLAMA,
+                ),
                 model_name=getattr(specialist, "_model_name", None),
                 started_at=started,
                 completed_at=completed,

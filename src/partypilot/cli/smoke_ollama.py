@@ -22,6 +22,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Override PARTYPILOT_OLLAMA_TIMEOUT_SECONDS.",
     )
     parser.add_argument(
+        "--num-ctx",
+        type=int,
+        default=None,
+        help="Override PARTYPILOT_OLLAMA_NUM_CTX.",
+    )
+    parser.add_argument(
         "--max-retries",
         type=int,
         default=None,
@@ -40,6 +46,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             base_url=args.base_url,
             timeout_seconds=args.timeout_seconds,
             max_retries=args.max_retries,
+            num_ctx=args.num_ctx,
         )
         adapter = OllamaAdapter(config, UrllibHttpTransport())
         response = adapter.generate(
@@ -59,6 +66,8 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     print("Ollama smoke test passed.")
     print(f"Model: {config.model}")
+    print(f"Provider I/O timeout: {config.timeout_seconds:.1f}s")
+    print(f"Ollama context budget: {getattr(config, 'num_ctx', 8192)} tokens")
     print(f"Response: {response.text.strip()}")
     return 0
 

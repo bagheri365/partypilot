@@ -139,18 +139,21 @@ def test_ollama_config_honors_environment_and_overrides(
     monkeypatch.setenv("PARTYPILOT_OLLAMA_MODEL", "env-model")
     monkeypatch.setenv("PARTYPILOT_OLLAMA_BASE_URL", "http://env.example:11434")
     monkeypatch.setenv("PARTYPILOT_OLLAMA_TIMEOUT_SECONDS", "15")
+    monkeypatch.setenv("PARTYPILOT_OLLAMA_NUM_CTX", "4096")
     monkeypatch.setenv("PARTYPILOT_OLLAMA_MAX_RETRIES", "1")
 
     config = eval_baseline._ollama_config(
         model="override-model",
         base_url="http://override.example:11434/",
         timeout_seconds=12.5,
+        num_ctx=2048,
         max_retries=4,
     )
 
     assert config.model == "override-model"
     assert config.base_url.startswith("http://override.example:11434")
     assert config.timeout_seconds == 12.5
+    assert config.num_ctx == 2048
     assert config.max_retries == 4
 
 

@@ -45,6 +45,7 @@ class OllamaConfig(BaseModel):
     base_url: str = "http://localhost:11434"
     model: str
     timeout_seconds: float = Field(gt=0)
+    num_ctx: int = Field(default=8192, gt=0)
     max_retries: int = Field(default=2, ge=0, le=5)
 
     @field_validator("base_url", "model")
@@ -70,6 +71,7 @@ class OllamaConfig(BaseModel):
             base_url=os.environ.get("PARTYPILOT_OLLAMA_BASE_URL", "http://localhost:11434"),
             model=model,
             timeout_seconds=float(os.environ.get("PARTYPILOT_OLLAMA_TIMEOUT_SECONDS", "30")),
+            num_ctx=int(os.environ.get("PARTYPILOT_OLLAMA_NUM_CTX", "8192")),
             max_retries=int(os.environ.get("PARTYPILOT_OLLAMA_MAX_RETRIES", "2")),
         )
 
@@ -144,7 +146,9 @@ class OllamaAdapter(LLMProvider):
                     timeout_seconds=effective_timeout,
                 )
                 return self._parse_response(response)
-            except (OllamaTimeoutError, OllamaConnectionError) as error:
+            except OllamaTimeoutError:
+                raise
+            except OllamaConnectionError as error:
                 last_error = error
                 if attempt == attempts - 1:
                     raise
@@ -163,6 +167,7 @@ class OllamaAdapter(LLMProvider):
             body["system"] = request.system_prompt
         if request.structured_output is not None:
             body["format"] = request.structured_output.json_schema
+        body["options"] = {"num_ctx": self._config.num_ctx}
         return json.dumps(body, separators=(",", ":")).encode("utf-8")
 
     @staticmethod
